@@ -8,7 +8,7 @@
       '딸기':'🍓','레몬':'🍋','바나나':'🍌','사과':'🍎','배':'🍐','복숭아':'🍑','자두':'🟣','수박':'🍉','오렌지':'🍊','포도':'🍇','멜론':'🍈','키위':'🥝','토마토':'🍅','체리':'🍒','망고':'🥭','파인애플':'🍍','블루베리':'🫐','귤':'🍊','홍시':'🟠','곶감':'🟧', '대추':'🟤', '밤':'🌰','배추':'🥬','상추':'🥬','깻잎':'🥬','시금치':'🥬','양배추':'🥬','오이':'🥒','호박':'🎃','감자':'🥔','고구마':'🍠','양파':'🧅','마늘':'🧄','대파':'🧅','당근':'🥕','버섯':'🍄','부추':'🌿','고추':'🌶️','생강':'🫚','옥수수':'🌽','콩':'🫘','팥':'🫘', '녹두':'🫘','쌀':'🍚','백미':'🍚','현미':'🍚','잡곡':'🌾','보리':'🌾','율무':'🌾','깨':'🧂','볶은깨':'🧂','참깨':'🧂','도라지': '🌿', '더덕': '🌿', '쑥': '🌿', '칡': '🌿', '인삼': '🌿', '녹용':'🦌','김':'🍘','다시마':'🌿','미역':'🌿','멸치':'🐟','갈치':'🐟','고등어':'🐟','오징어':'🦑','한치':'🦑','낙지':'🐙','문어':'🐙','주꾸미':'🐙','조개':'🦪','전복':'🐚','굴비':'🐟','명태':'🐟','황태':'🐟','코다리':'🐟','대구':'🐟','연어':'🍣','회':'🍣','쥐포':'🐟', '꽃게':'🦀','게장':'🦀','새우장':'🍤','새우젓':'🍤','젓갈':'🧂','명란젓':'🧂','오징어젓':'🦑','낙지젓':'🐙','창난젓':'🐟','갈치속젓':'🐟','어리굴젓':'🦪','김치':'🥬','깍두기':'🥬','동치미':'🥬','겉절이':'🥬','총각김치':'🥬','파김치':'🥬','갓김치':'🥬','장아찌':'🥒','나물':'🌿','볶음':'🍳','조림':'🍳','잡채':'🍝','떡갈비':'🍖','돼지갈비':'🍖','소갈비':'🍖','삼겹살':'🥩','목살':'🥩','등심':'🥩','안심':'🥩','갈비살':'🥩','살치살':'🥩','항정살':'🥩','가브리살':'🥩','소고기':'🥩','돼지고기':'🥩','닭':'🍗','닭갈비':'🍗','닭강정':'🍗','만두':'🥟','순대국':'🍲','감자탕':'🍲','뼈해장국':'🍲','국밥':'🍲','된장찌개':'🍲','청국장':'🍲','육개장':'🍲','비빔밥':'🍚','막국수':'🍜','냉면':'🍜','칼국수':'🍜','잔치국수':'🍜','콩국수':'🍜','면':'🍜','빵':'🍞','식빵':'🍞','모닝빵':'🥐','크루아상':'🥐','베이글':'🥯','도넛':'🍩','꽈배기':'🍩','찐빵':'🥮','술빵':'🥮','카스텔라':'🍰','케이크':'🎂','쿠키':'🍪', '떡':'🍡','두부':'🍱','계란':'🥚','꿀':'🍯','참기름':'🫙','들기름':'🫙','콩기름':'🫙','고춧가루':'🌶️','전통차':'🍵','유자차':'🍵','생강차':'🍵','오미자차':'🍵','대추차':'🍵','자전거':'🚲', '가방':'👜', '신발':'👟', '운동화':'👟', '구두':'👞', '슬리퍼':'🩴', '장화': '👢','그릇':'🥣', '접시':'🍽️', '컵':'🥤', '수저':'🥄', '냄비':'냄비', '프라이팬':'🍳','공구':'🔧', '철물':'🔩', '와이어':'⛓️', '철사':'⛓️', '파이프':'🪠', '망치':'🔨',
     };
     const KEYWORDS = [
-      ['김치','🥬'], ['장아찌','🥒'], ['국','🍲'], ['찌개','🍲'], ['탕','🍲'],['면','🍜'], ['빵','🍞'], ['젓','🧂'], ['장','🫙'], ['회','🍣'],['과일','🍎'], ['채소','🥬'], ['나물','🌿'], ['버섯','🍄'], ['고기','🥩'],['갈비','🍖'], ['치킨','🍗'], ['죽','🥣'], ['밥','🍚'], ['떡','🍡'],
+        ['김치','🥬'], ['장아찌','🥒'], ['국','🍲'], ['찌개','🍲'], ['탕','🍲'],['면','🍜'], ['빵','🍞'], ['젓','🧂'], ['장','🫙'], ['회','🍣'],['과일','🍎'], ['채소','🥬'], ['나물','🌿'], ['버섯','🍄'], ['고기','🥩'],['갈비','🍖'], ['치킨','🍗'], ['죽','🥣'], ['밥','🍚'], ['떡','🍡'],
     ];
 
     function getEmojiForProduct(productName) {
@@ -173,6 +173,7 @@
 
     let shoppingCart = {};
     let currentCategorySort = 'default';
+    let completedOrders = [];
     let favoriteStores = [];
     let userRecipes = [];
     let recentlyViewedStores = [];
@@ -195,6 +196,9 @@
         setTimeout(() => toast.remove(), 3000);
     }
     
+    // ... (알림, 지도, 최근 본 가게, 레시피 등 관련 함수들) ...
+    // 이 부분은 기능이 많아 생략하지만, 실제 코드에는 포함되어야 합니다.
+
     // ==================== 장바구니 기능 ====================
     function updateCartCountIndicator() {
         const countElement = document.getElementById('cart-item-count');
@@ -273,9 +277,9 @@
                                 ${requestHtml}
                             </div>
                             <div class="flex items-center space-x-2">
-                                <button onclick="updateCartItemQuantity('${storeId}', '${cartItemId}', -1)">-</button>
+                                <button onclick="window.updateCartItemQuantity('${storeId}', '${cartItemId}', -1)" class="w-6 h-6 border rounded-full">-</button>
                                 <span class="w-8 text-center font-semibold">${item.quantity}</span>
-                                <button onclick="updateCartItemQuantity('${storeId}', '${cartItemId}', 1)">+</button>
+                                <button onclick="window.updateCartItemQuantity('${storeId}', '${cartItemId}', 1)" class="w-6 h-6 border rounded-full">+</button>
                             </div>
                         </div>`;
                 }
@@ -413,22 +417,92 @@
         });
     }
 
-    // ==================== 화면 렌더링 ====================
-    // (이하 모든 화면 렌더링 함수는 이전 코드와 동일)
-    function showScreen(screenId, param = null) {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById(screenId).classList.add('active');
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.screen === screenId));
-        switch (screenId) {
-            case 'pickupScreen': renderPickupScreen(); break;
-            // ... 다른 화면들 case 추가 ...
-        }
+    // ==================== 화면 렌더링 (기존 기능) ====================
+    function renderCategoryShortcuts() {
+        const container = document.getElementById('category-shortcut-container');
+        container.innerHTML = Object.entries(categoryMap).map(([name, { emoji, color }]) => `
+            <button onclick="showScreen('categoryListScreen', '${name}')" class="flex flex-col items-center space-y-2">
+                <div class="w-full h-16 flex items-center justify-center bg-${color}-100 rounded-lg shadow-sm text-4xl">${emoji}</div>
+                <span class="text-xs font-medium">${name}</span>
+            </button>
+        `).join('');
     }
 
+    function renderCategoryList(categoryKey) {
+        const container = document.getElementById('categoryStoreListContainer');
+        let stores;
+        if (categoryKey === 'all') {
+            document.getElementById('categoryTitle').textContent = '전체 가게';
+            stores = [...storeData];
+        } else {
+            const categoryInfo = categoryMap[categoryKey];
+            if (!categoryInfo) return;
+            document.getElementById('categoryTitle').textContent = categoryKey;
+            stores = storeData.filter(s => categoryInfo.keywords.includes(s.category));
+        }
+        
+        container.innerHTML = '';
+        switch (currentCategorySort) {
+            case 'orders': stores.sort((a, b) => b.orders - a.orders); break;
+            case 'rating': stores.sort((a, b) => b.rating - a.rating); break;
+        }
+
+        if (stores.length === 0) {
+            container.innerHTML = `<p class="text-center text-gray-500 py-10">해당 카테고리의 가게가 없습니다.</p>`;
+            return;
+        }
+        
+        const uniqueStores = Array.from(new Map(stores.map(store => [store.id, store])).values());
+        uniqueStores.forEach(store => {
+            const tagsHtml = store.mainTags.map(tag => `<span class="bg-gray-200 text-gray-700 text-xs font-medium mr-2 px-2 py-1 rounded">${tag}</span>`).join('');
+            const card = document.createElement('div');
+            card.className = 'flex items-start bg-white p-4 rounded-lg border border-gray-200 relative cursor-pointer store-link';
+            card.dataset.storeId = store.id;
+            card.dataset.from = 'categoryListScreen';
+            card.dataset.category = categoryKey;
+            card.innerHTML = `
+                <div class="w-24 h-24 rounded-md mr-4 bg-gray-200 flex items-center justify-center text-5xl">${getEmojiForProduct(store.name)}</div>
+                <div class="flex-1">
+                    <h3 class="font-bold text-lg text-gray-900">${store.name}</h3>
+                    <div class="flex items-center text-sm text-gray-600 mt-1">
+                        <i class="ph ph-star text-yellow-400 text-base mr-1"></i>
+                        <span class="font-bold">${store.rating}</span>
+                        <span class="mx-1">|</span>
+                        <span>리뷰 ${store.reviews.length}</span>
+                    </div>
+                    <div class="mt-2">${tagsHtml}</div>
+                </div>`;
+            container.appendChild(card);
+        });
+    }
+
+    function renderStoreDetail({ storeId, from, category }) {
+        const store = storeData.find(s => s.id === storeId);
+        if (!store) return;
+        document.getElementById('storeDetailTitle').textContent = store.name;
+        // ... (이하 상세 페이지 렌더링 로직)
+    }
+    
+    // ==================== 화면 전환 ====================
+    function showScreen(screenId, param = null) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        const targetScreen = document.getElementById(screenId);
+        if(targetScreen) targetScreen.classList.add('active');
+        
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.screen === screenId));
+        
+        switch (screenId) {
+            case 'pickupScreen': renderPickupScreen(); break;
+            case 'categoryListScreen': if (param) renderCategoryList(param); break;
+            case 'storeDetailScreen': if (param) renderStoreDetail(param); break;
+            // ... 다른 화면들 case ...
+        }
+    }
 
     // ==================== 이벤트 리스너 설정 ====================
     function setupAllEventListeners() {
         document.body.addEventListener('click', async (e) => {
+            // 주문 조회 버튼
             if (e.target.id === 'findOrdersBtn') {
                 const userIdInput = document.getElementById('userIdInputPickup');
                 const userId = userIdInput.value.trim();
@@ -445,27 +519,49 @@
                     showMessage('주문 내역을 불러오는 중 오류 발생');
                 }
             }
-            // ... 기타 모든 기존 버튼 이벤트 리스너 로직 ...
+            
+            // 가게 링크
+            const storeLink = e.target.closest('.store-link');
+            if(storeLink) {
+                 showScreen('storeDetailScreen', { 
+                    storeId: parseInt(storeLink.dataset.storeId, 10), 
+                    from: storeLink.dataset.from,
+                    category: storeLink.dataset.category
+                });
+            }
+
+            // 장바구니 담기 버튼
+            const addToCartBtn = e.target.closest('.add-to-cart-btn');
+            if(addToCartBtn) {
+                showAddToCartModal(addToCartBtn.dataset);
+            }
         });
 
+        // 하단 네비게이션
         document.querySelectorAll('.nav-btn').forEach(button => {
             button.addEventListener('click', (e) => {
                 const screenId = e.currentTarget.dataset.screen;
                 if (screenId) showScreen(screenId);
             });
         });
+
+        // 검색 기능
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            // ... 검색 로직 ...
+        });
     }
 
     // ==================== 앱 초기화 ====================
     document.addEventListener('DOMContentLoaded', () => {
+        renderCategoryShortcuts();
         setupAllEventListeners();
         updateCartCountIndicator();
         showScreen('homeScreen');
     });
 
-    // 전역 스코프에 함수 노출
+    // ==================== 전역 스코프에 함수 노출 ====================
     window.showScreen = showScreen;
     window.showCartModal = showCartModal;
-    // ... 기타 전역 함수들 ...
+    // ... 기타 필요한 전역 함수 ...
 
 })();

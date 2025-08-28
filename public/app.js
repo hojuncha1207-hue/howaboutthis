@@ -531,6 +531,10 @@
                 </div>
                 <div class="flex-1 overflow-y-auto pr-2">${cartItemsHtml}</div>
                 <div class="border-t pt-4 mt-4">
+                    <div class="mb-4">
+                        <label for="userIdInput" class="block text-sm font-medium text-gray-700 mb-1">사용자 ID</label>
+                        <input type="text" id="userIdInput" placeholder="사용자 ID를 입력해주세요" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
                     <div class="text-right font-bold text-xl mb-4">
                         총 결제금액: <span class="text-indigo-600">${totalPrice.toLocaleString()}원</span>
                     </div>
@@ -595,7 +599,7 @@
 
         switch (screenId) {
             case 'searchScreen': renderSearchScreen(); break;
-            case 'pickupScreen': renderPickupScreen(); break;
+            case 'pickupScreen': setupPickupScreen(param); break;
             case 'myOrdersScreen': renderMyOrdersScreen(); break;
             case 'favoritesScreen': renderFavoritesScreen(); break;
             case 'recentStoresScreen': renderRecentStoresScreen(); break;
@@ -1109,7 +1113,13 @@
 
 
     // ==================== 픽업 및 주문 내역 기능 ====================
-     function handleCheckout() {
+    function handleCheckout() {
+        const userId = document.getElementById('userIdInput').value.trim();
+        if (!userId) {
+            showMessage('사용자 ID를 입력해주세요.');
+            return;
+        }
+
         const orderId = `CNY-${Date.now()}`;
         const date = new Date();
         let totalPrice = 0;
@@ -1124,6 +1134,7 @@
 
         const newOrder = {
             orderId: orderId,
+            userId: userId,
             cart: orderCart,
             date: date.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' }),
             totalPrice: totalPrice
@@ -1153,19 +1164,51 @@
         const modal = document.querySelector('.modal-overlay');
         if (modal) modal.remove();
         
-        showScreen('pickupScreen');
+        showScreen('pickupScreen', { userId: userId });
     }
 
-    function renderPickupScreen() {
-        const pickupScreenMain = document.getElementById('pickupScreen').querySelector('main');
-        pickupScreenMain.innerHTML = '';
+    function setupPickupScreen(param) {
+        const mainContainer = document.getElementById('pickupScreen').querySelector('main');
+        mainContainer.innerHTML = `
+            <div class="p-4 border-b">
+                <label for="pickupUserIdInput" class="block text-sm font-medium text-gray-700 mb-1">사용자 ID</label>
+                <div class="flex space-x-2">
+                    <input type="text" id="pickupUserIdInput" placeholder="주문 시 입력한 ID를 입력하세요" class="flex-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <button id="findPickupOrderBtn" class="px-4 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors whitespace-nowrap">조회하기</button>
+                </div>
+            </div>
+            <div id="pickupOrderResultsContainer" class="p-6">
+                <p class="text-center text-gray-500">사용자 ID를 입력하고 조회 버튼을 눌러주세요.</p>
+            </div>
+        `;
 
-        if (completedOrders.length === 0) {
-            pickupScreenMain.innerHTML = `<p class="text-center text-gray-500 p-10">완료된 주문이 없습니다. 장바구니에서 결제를 먼저 진행해주세요.</p>`;
+        document.getElementById('findPickupOrderBtn').addEventListener('click', () => {
+            const userId = document.getElementById('pickupUserIdInput').value.trim();
+            if (!userId) {
+                showMessage('사용자 ID를 입력해주세요.');
+                return;
+            }
+            renderFilteredPickupOrders(userId);
+        });
+
+        if (param && param.userId) {
+            document.getElementById('pickupUserIdInput').value = param.userId;
+            renderFilteredPickupOrders(param.userId);
+        }
+    }
+
+    function renderFilteredPickupOrders(userId) {
+        const resultsContainer = document.getElementById('pickupOrderResultsContainer');
+        resultsContainer.innerHTML = '';
+
+        const userOrders = completedOrders.filter(order => order.userId === userId);
+
+        if (userOrders.length === 0) {
+            resultsContainer.innerHTML = `<p class="text-center text-gray-500 p-10">해당 ID의 주문 내역이 없습니다.</p>`;
             return;
         }
 
-        [...completedOrders].reverse().forEach(order => {
+        [...userOrders].reverse().forEach(order => {
             const orderEl = document.createElement('div');
             orderEl.className = 'mb-8';
             
@@ -1183,6 +1226,11 @@
                         <div><p class="font-semibold text-gray-800">${store.storeName}</p><p class="text-gray-600">${items}</p></div>
                     </div>`;
             }
+            
+            const qrCodeData = JSON.stringify({
+                userId: order.userId,
+                orderId: order.orderId
+            });
 
             orderEl.innerHTML = `
                 <div class="bg-gray-50 p-6 rounded-lg text-center">
@@ -1190,6 +1238,7 @@
                     <p class="text-gray-500 mt-1">픽업 센터에서 아래 QR코드를 보여주세요.</p>
                     <div id="qrcode-${order.orderId}" class="mt-4 flex justify-center"></div>
                     <p class="mt-4 text-sm font-mono bg-gray-200 p-2 rounded inline-block">주문번호: ${order.orderId}</p>
+                    <p class="mt-2 text-sm font-mono bg-gray-200 p-2 rounded inline-block">사용자 ID: ${order.userId}</p>
                 </div>
                 <div class="mt-8">
                     <h3 class="text-lg font-bold text-gray-800 mb-4">주문 내역</h3>
@@ -1197,10 +1246,10 @@
                 </div>
                 <hr class="my-8 border-gray-300">
             `;
-            pickupScreenMain.appendChild(orderEl);
+            resultsContainer.appendChild(orderEl);
 
             new QRCode(document.getElementById(`qrcode-${order.orderId}`), { 
-                text: order.orderId, 
+                text: qrCodeData, 
                 width: 180, 
                 height: 180 
             });
@@ -1235,7 +1284,7 @@
             const orderCard = document.createElement('div');
             orderCard.className = 'bg-white p-4 rounded-lg border border-gray-200 shadow-sm';
             orderCard.innerHTML = `
-                <p class="text-sm text-gray-500 mb-2">${order.date} - 픽업</p>
+                <p class="text-sm text-gray-500 mb-2">${order.date} - 픽업 (ID: ${order.userId})</p>
                 ${orderItemsHtml}
                 <div class="border-t mt-4 pt-3 flex justify-between items-center">
                     <span class="font-semibold text-gray-700">결제금액</span>

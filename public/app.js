@@ -9,6 +9,8 @@
       '새송이': '버섯', '새송이버섯': '버섯', '달걀': '계란',
     };
     // 2) 기준어 → 이모지 매핑(직접 매칭) + 추가 보강
+    // IIFE 최상단에 추가
+    const API_BASE_URL = 'https://cheongnyamri-app.onrender.com';
     const MAP = {
       // 과일
       '딸기':'🍓','레몬':'🍋','바나나':'🍌','사과':'🍎','배':'🍐','복숭아':'🍑','자두':'🟣',
@@ -1142,8 +1144,7 @@
 
     // --- 추가된 부분 시작 ---
     try {
-        const response = await fetch('/api/orders', { // 로컬 테스트 시 /api/orders, 배포 후에는 'https://내-render-주소/api/orders'
-            method: 'POST',
+        const response = await fetch(`${API_BASE_URL}/api/orders`, { /* ... */ });            method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -1216,7 +1217,7 @@ async function renderFilteredPickupOrders(userId) {
     resultsContainer.innerHTML = `<p class="text-center text-gray-500">주문 내역을 불러오는 중...</p>`;
 
     try {
-        const response = await fetch(`https://cheongnyamri-app.onrender.com//api/orders/${userId}`); // 로컬 테스트 시, 배포 후에는 'https://내-render-주소/api/orders/${userId}'
+        const response = await fetch(`${API__BASE_URL}/api/orders/${userId}`);        
         if (!response.ok) {
             throw new Error('주문 내역을 불러오지 못했습니다.');
         }
@@ -1431,3 +1432,4 @@ async function renderFilteredPickupOrders(userId) {
     window.showPromptBox = showPromptBox;
     window.setMarketMapUrl = setMarketMapUrl;
 })();
+

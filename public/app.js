@@ -1,5 +1,7 @@
 // IIFE (Immediately Invoked Function Expression) to avoid polluting the global scope
 (() => {
+    const API_BASE_URL = 'https://cheongnyamri-app.onrender.com';
+
     // ==================== EMOJI NORMALIZATION UTILITY ====================
     // 1) 자주 쓰는 별칭 → 기준어로 통일
     const ALIASES = {
@@ -10,7 +12,6 @@
     };
     // 2) 기준어 → 이모지 매핑(직접 매칭) + 추가 보강
     // IIFE 최상단에 추가
-    const API_BASE_URL = 'https://cheongnyamri-app.onrender.com';
     const MAP = {
       // 과일
       '딸기':'🍓','레몬':'🍋','바나나':'🍌','사과':'🍎','배':'🍐','복숭아':'🍑','자두':'🟣',
@@ -1115,7 +1116,8 @@
 
 
     // ==================== 픽업 및 주문 내역 기능 ====================
-    async function handleCheckout() {
+   // 기존 handleCheckout 함수를 지우고 이걸로 교체!
+async function handleCheckout() {
     const userId = document.getElementById('userIdInput').value.trim();
     if (!userId) {
         showMessage('사용자 ID를 입력해주세요.');
@@ -1125,7 +1127,7 @@
     const orderId = `CNY-${Date.now()}`;
     const date = new Date();
     let totalPrice = 0;
-    
+
     const orderCart = JSON.parse(JSON.stringify(shoppingCart));
     for (const storeId in orderCart) {
         for (const cartItemId in orderCart[storeId].items) {
@@ -1142,9 +1144,9 @@
         totalPrice: totalPrice
     };
 
-    // --- 추가된 부분 시작 ---
     try {
-        const response = await fetch(`${API_BASE_URL}/api/orders`, { /* ... */ });            method: 'POST',
+        const response = await fetch(`${API_BASE_URL}/api/orders`, {
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -1155,31 +1157,38 @@
             throw new Error('서버에 주문을 저장하지 못했습니다.');
         }
 
-        // 서버 저장이 성공한 경우에만 아래 로직 실행
-        completedOrders.push(newOrder); // 로컬 캐시에도 저장 (선택사항)
-        
-        // 알림 및 장바구니 초기화 로직 (기존과 동일)
+        completedOrders.push(newOrder);
+
         for (const storeId in orderCart) {
-            // ... (기존 알림 로직)
+            const store = orderCart[storeId];
+            const firstItem = Object.values(store.items)[0];
+            const totalItems = Object.keys(store.items).length;
+            const message = `'${store.storeName}'에서 ${firstItem.name}` + (totalItems > 1 ? ` 외 ${totalItems - 1}건` : '') + ` 구매가 완료되었습니다. (총 ${newOrder.totalPrice.toLocaleString()}원)`;
+
+            const newNotification = {
+                id: Date.now() + parseInt(storeId),
+                message: message,
+                read: false
+            };
+            notifications.unshift(newNotification);
+            showToast(message);
         }
         saveNotificationsToStorage();
         updateNotificationIndicator();
 
         shoppingCart = {};
         updateCartCountIndicator();
-        
+
         const modal = document.querySelector('.modal-overlay');
         if (modal) modal.remove();
-        
+
         showScreen('pickupScreen', { userId: userId });
 
     } catch (error) {
         console.error('Checkout Error:', error);
         showMessage('주문 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
     }
-    // --- 추가된 부분 끝 ---
 }
-
     function setupPickupScreen(param) {
         const mainContainer = document.getElementById('pickupScreen').querySelector('main');
         mainContainer.innerHTML = `
@@ -1212,12 +1221,13 @@
 
     // 기존 renderFilteredPickupOrders 함수를 아래 코드로 교체하세요.
 
+// 기존 renderFilteredPickupOrders 함수를 지우고 이걸로 교체!
 async function renderFilteredPickupOrders(userId) {
     const resultsContainer = document.getElementById('pickupOrderResultsContainer');
     resultsContainer.innerHTML = `<p class="text-center text-gray-500">주문 내역을 불러오는 중...</p>`;
 
     try {
-        const response = await fetch(`${API__BASE_URL}/api/orders/${userId}`);        
+        const response = await fetch(`${API_BASE_URL}/api/orders/${userId}`);
         if (!response.ok) {
             throw new Error('주문 내역을 불러오지 못했습니다.');
         }
@@ -1228,19 +1238,27 @@ async function renderFilteredPickupOrders(userId) {
             return;
         }
 
-        resultsContainer.innerHTML = ''; // 이전 결과 초기화
-        
-        // 서버에서 받아온 주문들로 화면 렌더링
+        resultsContainer.innerHTML = '';
+
         fetchedOrders.forEach(orderData => {
             const orderEl = document.createElement('div');
             orderEl.className = 'mb-8';
-            
-            // orderData.order_details.cart 접근
+
             let itemsHtml = '';
             for (const storeId in orderData.order_details.cart) {
-                // ... (기존 HTML 생성 로직과 동일)
+                const store = orderData.order_details.cart[storeId];
+                const items = Object.values(store.items).map(item => {
+                    const requestText = item.request ? ` (${item.request})` : '';
+                    return `${item.name} ${item.quantity}개${requestText}`;
+                }).join(', ');
+
+                itemsHtml += `
+                    <div class="flex items-start bg-gray-100 p-3 rounded-lg">
+                        <div class="w-12 h-12 rounded-md mr-4 bg-gray-200 flex items-center justify-center text-3xl">${getEmojiForProduct(store.storeName)}</div>
+                        <div><p class="font-semibold text-gray-800">${store.storeName}</p><p class="text-gray-600">${items}</p></div>
+                    </div>`;
             }
-            
+
             const qrCodeData = JSON.stringify({
                 userId: orderData.user_id,
                 orderId: orderData.order_id
@@ -1432,4 +1450,5 @@ async function renderFilteredPickupOrders(userId) {
     window.showPromptBox = showPromptBox;
     window.setMarketMapUrl = setMarketMapUrl;
 })();
+
 

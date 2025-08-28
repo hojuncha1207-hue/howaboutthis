@@ -1216,7 +1216,7 @@ async function renderFilteredPickupOrders(userId) {
     resultsContainer.innerHTML = `<p class="text-center text-gray-500">주문 내역을 불러오는 중...</p>`;
 
     try {
-        const response = await fetch(`/api/orders/${userId}`); // 로컬 테스트 시, 배포 후에는 'https://내-render-주소/api/orders/${userId}'
+        const response = await fetch(`https://cheongnyamri-app.onrender.com//api/orders/${userId}`); // 로컬 테스트 시, 배포 후에는 'https://내-render-주소/api/orders/${userId}'
         if (!response.ok) {
             throw new Error('주문 내역을 불러오지 못했습니다.');
         }

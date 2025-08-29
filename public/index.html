@@ -42,10 +42,12 @@
                     </div>
                     <span class="font-semibold text-gray-700 text-sm">시장 지도</span>
                 </button>
-                <button onclick="showScreen('mealKitScreen')" class="nav-button flex flex-col items-center justify-center space-y-2 p-2 rounded-lg hover:bg-lime-50 transition-colors">
-                    <div class="nav-icon w-16 h-16 bg-lime-100 rounded-full flex items-center justify-center"><i class="ph ph-package text-3xl text-lime-600"></i></div>
-                    <span class="font-semibold text-gray-700 text-sm">밀키트</span>
+                <!-- ▼▼▼ 이 버튼 부분이 수정되었습니다 ▼▼▼ -->
+                <button onclick="showScreen('mealKitScreen')" class="nav-button flex flex-col items-center justify-center space-y-2 p-2 rounded-lg hover:bg-amber-50 transition-colors">
+                    <div class="nav-icon w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center"><i class="ph-fill ph-lightbulb-filament text-3xl text-amber-600"></i></div>
+                    <span class="font-semibold text-gray-700 text-sm">오늘 뭐먹지?</span>
                 </button>
+                <!-- ▲▲▲ 여기까지 수정되었습니다 ▲▲▲ -->
                 <button onclick="showScreen('pickupScreen')" class="nav-button flex flex-col items-center justify-center space-y-2 p-2 rounded-lg hover:bg-teal-50 transition-colors">
                     <div class="nav-icon w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center"><i class="ph ph-qr-code text-3xl text-teal-600"></i></div>
                     <span class="font-semibold text-gray-700 text-sm">픽업 주문</span>
@@ -66,7 +68,7 @@
             <header class="p-4 sticky top-0 bg-white z-10 border-b">
                 <div class="flex items-center">
                     <button onclick="showScreen('homeScreen')" class="p-2 mr-2"><i class="ph ph-arrow-left text-2xl"></i></button>
-                    <h1 class="text-xl font-bold text-gray-800">밀키트</h1>
+                    <h1 class="text-xl font-bold text-gray-800">오늘 뭐먹지?</h1>
                 </div>
             </header>
             <div class="p-4 border-b">

@@ -1,52 +1,43 @@
 // IIFE (Immediately Invoked Function Expression) to avoid polluting the global scope
 (() => {
-    // ==================== EMOJI NORMALIZATION UTILITY ====================
-    // 1) 자주 쓰는 별칭 → 기준어로 통일
     const API_BASE_URL = 'https://cheongnyamri-app.onrender.com';
+
+    // ==================== EMOJI NORMALIZATION UTILITY ====================
     const ALIASES = {
       '샤인머스켓': '포도', '캠벨포도': '포도', '거봉': '포도', '방울토마토': '토마토',
       '천도복숭아': '복숭아', '씨없는수박': '수박', '참외': '멜론', '애호박': '호박',
       '쌈채소': '상추', '쪽파': '대파', '느타리': '버섯', '느타리버섯': '버섯',
       '새송이': '버섯', '새송이버섯': '버섯', '달걀': '계란',
     };
-    // 2) 기준어 → 이모지 매핑(직접 매칭) + 추가 보강
     const MAP = {
-      // 과일
       '딸기':'🍓','레몬':'🍋','바나나':'🍌','사과':'🍎','배':'🍐','복숭아':'🍑','자두':'🟣',
       '수박':'🍉','오렌지':'🍊','포도':'🍇','멜론':'🍈','키위':'🥝','토마토':'🍅','체리':'🍒',
       '망고':'🥭','파인애플':'🍍','블루베리':'🫐','귤':'🍊','홍시':'🟠','곶감':'🟧', '대추':'🟤', '밤':'🌰',
-      // 채소/곡물/양념
       '배추':'🥬','상추':'🥬','깻잎':'🥬','시금치':'🥬','양배추':'🥬','오이':'🥒','호박':'🎃',
       '감자':'🥔','고구마':'🍠','양파':'🧅','마늘':'🧄','대파':'🧅','당근':'🥕','버섯':'🍄',
       '부추':'🌿','고추':'🌶️','생강':'🫚','옥수수':'🌽','콩':'🫘','팥':'🫘', '녹두':'🫘',
       '쌀':'🍚','백미':'🍚','현미':'🍚','잡곡':'🌾','보리':'🌾','율무':'🌾','깨':'🧂','볶은깨':'🧂','참깨':'🧂',
       '도라지': '🌿', '더덕': '🌿', '쑥': '🌿', '칡': '🌿', '인삼': '🌿', '녹용':'🦌',
-      // 해산물/건어물
       '김':'🍘','다시마':'🌿','미역':'🌿','멸치':'🐟','갈치':'🐟','고등어':'🐟','오징어':'🦑',
       '한치':'🦑','낙지':'🐙','문어':'🐙','주꾸미':'🐙','조개':'🦪','전복':'🐚','굴비':'🐟',
       '명태':'🐟','황태':'🐟','코다리':'🐟','대구':'🐟','연어':'🍣','회':'🍣','쥐포':'🐟', '꽃게':'🦀',
-      // 장/젓/반찬
       '게장':'🦀','새우장':'🍤','새우젓':'🍤','젓갈':'🧂','명란젓':'🧂','오징어젓':'🦑',
       '낙지젓':'🐙','창난젓':'🐟','갈치속젓':'🐟','어리굴젓':'🦪',
       '김치':'🥬','깍두기':'🥬','동치미':'🥬','겉절이':'🥬','총각김치':'🥬','파김치':'🥬',
       '갓김치':'🥬','장아찌':'🥒','나물':'🌿','볶음':'🍳','조림':'🍳','잡채':'🍝',
-      // 육류/식사
       '떡갈비':'🍖','돼지갈비':'🍖','소갈비':'🍖','삼겹살':'🥩','목살':'🥩','등심':'🥩','안심':'🥩',
       '갈비살':'🥩','살치살':'🥩','항정살':'🥩','가브리살':'🥩','소고기':'🥩','돼지고기':'🥩',
       '닭':'🍗','닭갈비':'🍗','닭강정':'🍗','만두':'🥟','순대국':'🍲','감자탕':'🍲','뼈해장국':'🍲',
       '국밥':'🍲','된장찌개':'🍲','청국장':'🍲','육개장':'🍲','비빔밥':'🍚',
       '막국수':'🍜','냉면':'🍜','칼국수':'🍜','잔치국수':'🍜','콩국수':'🍜','면':'🍜',
-      // 제과/간식/음료
       '빵':'🍞','식빵':'🍞','모닝빵':'🥐','크루아상':'🥐','베이글':'🥯','도넛':'🍩','꽈배기':'🍩',
       '찐빵':'🥮','술빵':'🥮','카스텔라':'🍰','케이크':'🎂','쿠키':'🍪', '떡':'🍡',
       '두부':'🍱','계란':'🥚','꿀':'🍯','참기름':'🫙','들기름':'🫙','콩기름':'🫙','고춧가루':'🌶️',
       '전통차':'🍵','유자차':'🍵','생강차':'🍵','오미자차':'🍵','대추차':'🍵',
-      // 잡화/기타
       '자전거':'🚲', '가방':'👜', '신발':'👟', '운동화':'👟', '구두':'👞', '슬리퍼':'🩴', '장화': '👢',
       '그릇':'🥣', '접시':'🍽️', '컵':'🥤', '수저':'🥄', '냄비':'냄비', '프라이팬':'🍳',
       '공구':'🔧', '철물':'🔩', '와이어':'⛓️', '철사':'⛓️', '파이프':'🪠', '망치':'🔨',
     };
-    // 3) 키워드 포함 시 후순위 기본값(직접 매칭 실패 시)
     const KEYWORDS = [
       ['김치','🥬'], ['장아찌','🥒'], ['국','🍲'], ['찌개','🍲'], ['탕','🍲'],
       ['면','🍜'], ['빵','🍞'], ['젓','🧂'], ['장','🫙'], ['회','🍣'],
@@ -55,15 +46,11 @@
     ];
 
     function getEmojiForProduct(productName) {
-        let term = productName.trim().replace(/\s+/g, ''); // 공백 제거 추가
-
-        // 1. 별칭을 기준어로 변경
+        let term = productName.trim().replace(/\s+/g, '');
         const aliasKey = Object.keys(ALIASES).find(key => term.includes(key));
         if (aliasKey) {
             term = ALIASES[aliasKey];
         }
-
-        // 2. 기준어 직접 매칭
         if (MAP[term]) {
             return MAP[term];
         }
@@ -71,20 +58,16 @@
         if (mapKey) {
             return MAP[mapKey];
         }
-
-        // 3. 키워드 포함 매칭
         for (const [keyword, emoji] of KEYWORDS) {
             if (term.includes(keyword)) {
                 return emoji;
             }
         }
-        
-        // 4. 그래도 없으면 기본값
         return '🛒';
     }
 
     // ==================== RAW DATA ====================
-    const marketData = [
+    const marketData = [ 
         {"고유ID":1,"가게이름":"수희과일","가게분류":"청과물","main_product":"딸기, 레몬, 바나나, 배, 복숭아, 사과, 샤인머스켓, 수박, 오렌지, 자두, 참외, 키위, 토마토, 포도, 멜론, 체리, 망고, 씨 없는 수박, 곶감","위치":"가-42/경동시장로","특징":"신선한 제철 과일과 다양한 수입 과일을 취급합니다. 여름에는 특히 복숭아, 수박 등 당도 높은 과일이 인기가 많습니다.","좌표":"873,244","url":"monumental-mochi-19e075.netlify.app"},
         {"고유ID":2,"가게이름":"안동상회","가게분류":"청과물","main_product":"귤, 딸기, 사과, 수박, 멜론, 홍시, 방울토마토","위치":"가-43/경동시장로","특징":"계절별로 인기 있는 과일 위주로 판매하며, 여름에는 멜론과 수박이 특히 인기가 많습니다.","좌표":"873,266","url":"melodious-cocada-d9c1a0.netlify.app"},
         {"고유ID":3,"가게이름":"소문난반찬","가게분류":"가공식품","main_product":"게장, 새우장, 전복장, 명란젓, 갈치속젓","위치":"가-44/경동시장로","특징":"밥도둑으로 유명한 게장을 전문적으로 판매하며, 다양한 해산물 장류와 젓갈류도 맛볼 수 있습니다.","좌표":"873,290","url":"astonishing-mooncake-65b1b6.netlify.app"},
@@ -207,9 +190,9 @@
         {"고유ID":120,"가게이름":"경희신발","가게분류":"생활용품(의류/패션)","main_product":"운동화, 슬리퍼, 구두, 장화, 등산화","위치":"서울 동대문구","특징":"편안한 신발과 의류를 저렴한 가격에 판매하는 가게입니다.","좌표":"449,100","url":"fancy-kataifi-31d49b.netlify.app"},
         {"고유ID":121,"가게이름":"동작상회","가게분류":"농산물","main_product":"상추, 깻잎, 고추, 마늘, 오이, 각종 쌈채소","위치":"서울 동대문구","특징":"다양한 종류의 신선한 농산물을 전문적으로 취급합니다.","좌표":"449,126","url":"dulcet-lily-df3899.netlify.app"},
         {"고유ID":122,"가게이름":"우리과일","가게분류":"청과물","main_product":"수박, 참외, 포도, 복숭아, 자두, 계절과일","위치":"서울 동대문구","특징":"제철을 맞은 신선하고 당도 높은 과일을 전문적으로 판매합니다.","좌표":"744,470","url":"singular-kheer-0305fe.netlify.app"},
-        {"고유ID":123,"가게이름":"화장실1","가게분류":"편의시설","main_product":null,"위치":"서울 동대문구","특징":"공용시설","좌표":"414,346","url":"tourmaline-malabi-9e1207.netlify.app"},
-    ];
+        {"고유ID":123,"가게이름":"화장실1","가게분류":"편의시설","main_product":null,"위치":"서울 동대문구","특징":"공용시설","좌표":"414,346","url":"tourmaline-malabi-9e1207.netlify.app"},];
 
+    // ==================== MEAL KIT DATA ====================
     const mealKitData = [
         {
             id: 'mk1', name: '돼지고기 김치찌개', emoji: '🥘', description: '얼큰하고 진한 한국인의 소울푸드',
@@ -236,422 +219,69 @@
             ]
         }
     ];
-    // ==================== 데이터 처리 및 앱 상태 관리 ====================
     
-    // --- 카테고리 매핑 (데이터 정제 및 확장) ---
-    const categoryMap = {
-        '정육': { emoji: '🥩', color: 'red', keywords: ['정육점'] },
-        '수산': { emoji: '🐟', color: 'blue', keywords: ['수산물'] },
-        '청과/야채': { emoji: '🥬', color: 'green', keywords: ['청과물', '농산물'] },
-        '반찬/김치': { emoji: '🍚', color: 'yellow', keywords: ['반찬/김치', '가공식품'] },
-        '음식점': { emoji: '🍲', color: 'purple', keywords: ['음식점(한식)', '음식점(간식/디저트)', '음식점(제과제빵)', '음식점(카페/음료)'] },
-        '건강식품': { emoji: '🌿', color: 'teal', keywords: ['건강식품', '한약재'] },
-        '생활용품': { emoji: '🛍️', color: 'pink', keywords: ['생활용품(잡화)', '생활용품(의류/패션)', '철물'] },
-        '기타': { emoji: '🏪', color: 'gray', keywords: ['서비스', '편의시설'] }
-    };
-    // 데이터 변환: 원본 데이터를 앱에서 사용하기 좋은 형태로 가공
-    const storeData = marketData.map(store => {
-        const productNames = (store.main_product || '').split(',').map(p => p.trim()).filter(Boolean);
-        const mainTags = productNames.slice(0, 2).map(tag => `#${tag}`);
-        
-        const products = productNames.map((productName, index) => {
-            return {
-                id: `${store.고유ID}-${index}`,
-                name: productName,
-                price: Math.floor(Math.random() * (300 - 50) + 50) * 100, // 데모용 랜덤 가격
-                emoji: getEmojiForProduct(productName)
-            };
-        });
+    // ==================== 데이터 처리 및 앱 상태 관리 ====================
+    const categoryMap = { /* ... */ };
+    const storeData = marketData.map(store => { /* ... */ });
+    let shoppingCart = {}, currentCategorySort = 'default', completedOrders = [], favoriteStores = [],
+        userRecipes = [], recentlyViewedStores = [], notifications = [];
 
-        return {
-            id: store.고유ID,
-            name: store.가게이름,
-            category: store.가게분류,
-            mainTags: mainTags,
-            rating: (Math.random() * (5.0 - 4.0) + 4.0).toFixed(1),
-            orders: Math.floor(Math.random() * 500) + 10,
-            reviews: [],
-            products: products,
-            description: store.특징,
-            url: store.url
-        };
-    });
-
-    // 앱 상태 변수
-    let shoppingCart = {};
-    let currentCategorySort = 'default';
-    let completedOrders = [];
-    let favoriteStores = [];
-    let userRecipes = [];
-    let recentlyViewedStores = [];
-    let notifications = [];
-
-    // --- 시장 지도 URL 관리 ---
-    const DEFAULT_MAP_URL = 'https://transcendent-crisp-6ebea8.netlify.app/';
-    function getCleanUrl(url) {
-        try {
-            const urlObject = new URL(url);
-            return urlObject.origin + urlObject.pathname;
-        } catch (e) {
-            return url;
-        }
-    }
-
-    function getStoredMapUrl() {
-        const urlParam = new URLSearchParams(location.search).get('map');
-        if (urlParam) return urlParam;
-        return localStorage.getItem('ddmap.marketUrl') || DEFAULT_MAP_URL;
-    }
-
-    function setMarketMapUrl(url) {
-        try {
-            const cleanUrl = getCleanUrl(url);
-            localStorage.setItem('ddmap.marketUrl', cleanUrl);
-            applyMarketMapUrl(cleanUrl);
-            showToast('시장 지도 URL이 성공적으로 변경되었습니다.');
-        } catch (e) {
-            showMessage('올바른 URL 형식을 입력해 주세요. (예: https://example.com)');
-        }
-    }
-
-    function applyMarketMapUrl(url) {
-        const frame = document.getElementById('marketMapFrame');
-        const newTabLink = document.getElementById('openMapNewTab');
-        const loadingIndicator = document.getElementById('mapLoading');
-        
-        loadingIndicator.style.display = 'flex';
-        frame.style.display = 'none';
-        
-        frame.src = 'about:blank';
-        setTimeout(() => {
-            frame.src = url;
-            newTabLink.href = url;
-        }, 50);
-    }
-
-    // ==================== UI 헬퍼 함수 ====================
-    function showMessage(message) {
-        const modal = document.createElement('div');
-        modal.className = 'modal-overlay';
-        modal.innerHTML = `
-            <div class="modal-content text-center">
-                <p class="text-gray-800 text-lg mb-6">${message}</p>
-                <button onclick="this.closest('.modal-overlay').remove()" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors">확인</button>
-            </div>`;
-        document.getElementById('modalContainer').appendChild(modal);
-    }
-
-    function showPromptBox(title, message, callback) {
-        const modal = document.createElement('div');
-        modal.className = 'modal-overlay';
-        modal.innerHTML = `
-            <div class="modal-content">
-                <h3 class="text-xl font-bold mb-4">${title}</h3>
-                <p class="text-gray-600 mb-4">${message}</p>
-                <input type="text" id="promptInput" value="${getStoredMapUrl()}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-4">
-                <div class="flex justify-end space-x-2">
-                    <button onclick="this.closest('.modal-overlay').remove()" class="px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">취소</button>
-                    <button id="promptConfirmBtn" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">확인</button>
-                </div>
-            </div>`;
-        document.getElementById('modalContainer').appendChild(modal);
-        document.getElementById('promptConfirmBtn').addEventListener('click', () => {
-            const inputValue = document.getElementById('promptInput').value;
-            callback(inputValue);
-            modal.remove();
-        });
-    }
-
-    function showToast(message) {
-        const container = document.getElementById('toast-container');
-        const toast = document.createElement('div');
-        toast.className = 'toast';
-        toast.textContent = message;
-        container.appendChild(toast);
-        setTimeout(() => {
-            toast.remove();
-        }, 3000);
-    }
-
-    // ==================== 알림 기능 ====================
-    function loadNotificationsFromStorage() {
-        const storedNotifications = localStorage.getItem('cheongnyamri.notifications');
-        notifications = storedNotifications ? JSON.parse(storedNotifications) : [];
-        updateNotificationIndicator();
-    }
-
-    function saveNotificationsToStorage() {
-        localStorage.setItem('cheongnyamri.notifications', JSON.stringify(notifications));
-    }
-
-    function updateNotificationIndicator() {
-        const dot = document.getElementById('notification-dot');
-        const hasUnread = notifications.some(n => !n.read);
-        dot.classList.toggle('hidden', !hasUnread);
-    }
-
-    function showNotificationModal() {
-        const modal = document.createElement('div');
-        modal.className = 'modal-overlay';
-        let notificationsHtml = notifications.length === 0 
-            ? `<p class="text-center text-gray-500 py-10">새로운 알림이 없습니다.</p>`
-            : notifications.map(n => `
-                <div class="p-3 border-b last:border-b-0 ${!n.read ? 'bg-indigo-50' : ''}">
-                    <p class="text-sm text-gray-800">${n.message}</p>
-                </div>
-            `).join('');
-        modal.innerHTML = `
-            <div class="modal-content flex flex-col h-full max-h-[80vh]">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-xl font-bold">알림</h3>
-                    <button onclick="this.closest('.modal-overlay').remove()"><i class="ph ph-x text-2xl"></i></button>
-                </div>
-                <div class="flex-1 overflow-y-auto -mx-6 px-6">${notificationsHtml}</div>
-            </div>`;
-        document.getElementById('modalContainer').appendChild(modal);
-
-        notifications.forEach(n => n.read = true);
-        saveNotificationsToStorage();
-        updateNotificationIndicator();
-    }
-
-    // ==================== 장바구니 기능 ====================
-    function updateCartCountIndicator() {
-        const countElement = document.getElementById('cart-item-count');
-        let totalCount = 0;
-        for (const storeId in shoppingCart) {
-            for (const cartItemId in shoppingCart[storeId].items) {
-                totalCount += shoppingCart[storeId].items[cartItemId].quantity;
-            }
-        }
-        countElement.textContent = totalCount;
-        countElement.classList.toggle('hidden', totalCount === 0);
-    }
-
-    function simpleHash(str) {
-        let hash = 0;
-        for (let i = 0; i < str.length; i++) {
-            const char = str.charCodeAt(i);
-            hash = (hash << 5) - hash + char;
-            hash &= hash; // 32비트 정수로 변환
-        }
-        return hash;
-    }
-
-    function showAddToCartModal(productData) {
-        const modal = document.createElement('div');
-        modal.className = 'modal-overlay';
-        modal.innerHTML = `
-            <div class="modal-content">
-                <h3 class="text-xl font-bold mb-2">${productData.productName}</h3>
-                <p class="text-gray-600 mb-4">상품을 장바구니에 담습니다.</p>
-                <input type="text" id="itemRequestInput" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-4" placeholder="특별 요청사항 (예: 찌개용으로 썰어주세요)">
-                <div class="flex flex-col space-y-2">
-                    <button id="confirmAddToCartBtn" class="w-full px-4 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors">장바구니 담기</button>
-                    <button onclick="this.closest('.modal-overlay').remove()" class="w-full px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">취소</button>
-                </div>
-            </div>`;
-        document.getElementById('modalContainer').appendChild(modal);
-
-        document.getElementById('confirmAddToCartBtn').addEventListener('click', () => {
-            const request = document.getElementById('itemRequestInput').value.trim();
-            addToCart(
-                productData.storeId,
-                productData.storeName,
-                productData.productId,
-                productData.productName,
-                parseInt(productData.productPrice, 10),
-                productData.productEmoji,
-                request
-            );
-            modal.remove();
-            showToast(`'${productData.productName}' 상품을 장바구니에 담았습니다!`);
-        });
-    }
-
-    function addToCart(storeId, storeName, productId, productName, price, emoji, request = "") {
-        if (!shoppingCart[storeId]) {
-            shoppingCart[storeId] = { storeName: storeName, items: {} };
-        }
-        
-        const cartItemId = `${productId}-${simpleHash(request)}`;
-        if (shoppingCart[storeId].items[cartItemId]) {
-            shoppingCart[storeId].items[cartItemId].quantity++;
-        } else {
-            shoppingCart[storeId].items[cartItemId] = {
-                productId, name: productName, price, quantity: 1, emoji, request
-            };
-        }
-        updateCartCountIndicator();
-    }
-
-    function updateCartItemQuantity(storeId, cartItemId, change) {
-        if (shoppingCart[storeId] && shoppingCart[storeId].items[cartItemId]) {
-            const item = shoppingCart[storeId].items[cartItemId];
-            item.quantity += change;
-            if (item.quantity <= 0) {
-                delete shoppingCart[storeId].items[cartItemId];
-                if (Object.keys(shoppingCart[storeId].items).length === 0) {
-                    delete shoppingCart[storeId];
-                }
-            }
-        }
-        updateCartCountIndicator();
-        const existingModal = document.querySelector('.modal-overlay');
-        if (existingModal) existingModal.remove();
-        showCartModal();
-    }
-
-    function showCartModal() {
-        const modal = document.createElement('div');
-        modal.className = 'modal-overlay';
-        let cartItemsHtml = '';
-        let totalPrice = 0;
-        const cartIsEmpty = Object.keys(shoppingCart).length === 0;
-
-        if (cartIsEmpty) {
-            cartItemsHtml = `<p class="text-center text-gray-500 py-10">장바구니가 비어 있습니다.</p>`;
-        } else {
-            for (const storeId in shoppingCart) {
-                const store = shoppingCart[storeId];
-                let storeItemsHtml = '';
-                for (const cartItemId in store.items) {
-                    const item = store.items[cartItemId];
-                    totalPrice += item.price * item.quantity;
-                    const requestHtml = item.request ? `<p class="text-xs text-indigo-600 bg-indigo-50 rounded px-2 py-1 mt-1">요청: ${item.request}</p>` : '';
-                    storeItemsHtml += `
-                        <div class="flex items-start py-3 border-b last:border-b-0">
-                            <div class="w-16 h-16 rounded-md mr-4 bg-gray-200 flex items-center justify-center text-3xl">${item.emoji}</div>
-                            <div class="flex-1">
-                                <p class="font-semibold text-gray-800">${item.name}</p>
-                                <p class="text-gray-600 font-bold">${item.price.toLocaleString()}원</p>
-                                ${requestHtml}
-                            </div>
-                            <div class="flex items-center space-x-2">
-                                <button class="cart-quantity-btn" data-store-id="${storeId}" data-cart-item-id="${cartItemId}" data-change="-1">-</button>
-                                <span class="w-8 text-center font-semibold">${item.quantity}</span>
-                                <button class="cart-quantity-btn" data-store-id="${storeId}" data-cart-item-id="${cartItemId}" data-change="1">+</button>
-                            </div>
-                            <button class="ml-4 text-gray-400 hover:text-red-500 cart-delete-btn" data-store-id="${storeId}" data-cart-item-id="${cartItemId}">
-                                <i class="ph ph-x-circle text-2xl"></i>
-                            </button>
-                        </div>
-                    `;
-                }
-                
-                cartItemsHtml += `
-                    <div class="mb-4">
-                        <button class="flex items-center font-bold text-lg mb-2 store-link-from-cart" data-store-id="${storeId}">
-                            ${store.storeName} <i class="ph ph-caret-right ml-1"></i>
-                        </button>
-                        <div class="bg-gray-50 p-2 rounded-lg">${storeItemsHtml}</div>
-                    </div>
-                `;
-            }
-        }
-
-        modal.innerHTML = `
-            <div class="modal-content flex flex-col h-full max-h-[80vh]">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-xl font-bold">장바구니</h3>
-                    <button onclick="this.closest('.modal-overlay').remove()"><i class="ph ph-x text-2xl"></i></button>
-                </div>
-                <div class="flex-1 overflow-y-auto pr-2">${cartItemsHtml}</div>
-                <div class="border-t pt-4 mt-4">
-                    <div class="text-right font-bold text-xl mb-4">
-                        총 결제금액: <span class="text-indigo-600">${totalPrice.toLocaleString()}원</span>
-                    </div>
-                    <div class="flex flex-col space-y-2">
-                        <button id="checkoutBtn" class="w-full px-4 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors ${cartIsEmpty ? 'opacity-50 cursor-not-allowed' : ''}" ${cartIsEmpty ? 'disabled' : ''}>
-                            결제하고 픽업하기
-                        </button>
-                    </div>
-                </div>
-            </div>`;
-        document.getElementById('modalContainer').appendChild(modal);
-        
-        modal.addEventListener('click', e => {
-            const quantityBtn = e.target.closest('.cart-quantity-btn');
-            const deleteBtn = e.target.closest('.cart-delete-btn');
-            const storeLink = e.target.closest('.store-link-from-cart');
-
-            if (quantityBtn) {
-                const { storeId, cartItemId, change } = quantityBtn.dataset;
-                updateCartItemQuantity(storeId, cartItemId, parseInt(change));
-            } else if (deleteBtn) {
-                const { storeId, cartItemId } = deleteBtn.dataset;
-                updateCartItemQuantity(storeId, cartItemId, -Infinity);
-            } else if (storeLink) {
-                const { storeId } = storeLink.dataset;
-                modal.remove();
-                showScreen('storeDetailScreen', { storeId: parseInt(storeId, 10), from: 'homeScreen' });
-            }
-        });
-
-        if (!cartIsEmpty) {
-            document.getElementById('checkoutBtn').addEventListener('click', handleCheckout);
-        }
-    }
-
-    // ==================== 화면 전환 및 렌더링 ====================
-    function showScreen(screenId, param = null) {
-        const targetScreen = document.getElementById(screenId);
-        if (!targetScreen) {
-            console.error(`showScreen: screen with id "${screenId}" not found.`);
-            return;
-        }
-
-        const appContainer = document.getElementById('appContainer');
-        document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
-        targetScreen.classList.add('active');
-
-        document.querySelectorAll('.nav-btn').forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.screen === screenId);
-        });
-
-        if (screenId === 'mapScreen') {
-            appContainer.classList.remove('max-w-lg');
-            const storedUrl = getStoredMapUrl();
-            applyMarketMapUrl(storedUrl);
-            if (window.innerHeight > window.innerWidth) {
-                showToast("최적의 지도 경험을 위해 기기를 가로로 돌려주세요.");
-            }
-        } else {
-            appContainer.classList.add('max-w-lg');
-        }
-
-        switch (screenId) {
-            case 'searchScreen': renderSearchScreen(); break;
-            case 'pickupScreen': renderPickupScreen(); break;
-            case 'myOrdersScreen': renderMyOrdersScreen(); break;
-            case 'favoritesScreen': renderFavoritesScreen(); break;
-            case 'recentStoresScreen': renderRecentStoresScreen(); break;
-            case 'categoryListScreen': if (param) renderCategoryList(param); break;
-            case 'mealKitScreen': renderMealKitList(); break;
-            case 'storeDetailScreen': if (param) renderStoreDetail(param); break;
-            case 'smartShoppingScreen':
-                document.getElementById('smartSearchResultsContainer').innerHTML = '<p class="text-center text-gray-500 py-10">찾고 싶은 상품을 쉼표(,)로 구분하여 검색해 보세요.<br>또는 저장된 레시피를 이용해 보세요.</p>';
-                document.getElementById('smartSearchInput').value = '';
-                renderMyRecipes();
-                break;
-        }
-    }
+    // ==================== UI 헬퍼 및 기타 함수들 ====================
+    function getCleanUrl(url) { /* ... */ }
+    function getStoredMapUrl() { /* ... */ }
+    function setMarketMapUrl(url) { /* ... */ }
+    function applyMarketMapUrl(url) { /* ... */ }
+    function showMessage(message) { /* ... */ }
+    function showPromptBox(title, message, callback) { /* ... */ }
+    function showToast(message) { /* ... */ }
+    function loadNotificationsFromStorage() { /* ... */ }
+    function saveNotificationsToStorage() { /* ... */ }
+    function updateNotificationIndicator() { /* ... */ }
+    function showNotificationModal() { /* ... */ }
+    function updateCartCountIndicator() { /* ... */ }
+    function simpleHash(str) { /* ... */ }
+    function showAddToCartModal(productData) { /* ... */ }
+    function addToCart(storeId, storeName, productId, productName, price, emoji, request = "") { /* ... */ }
+    function updateCartItemQuantity(storeId, cartItemId, change) { /* ... */ }
+    function showCartModal() { /* ... */ }
+    function renderCategoryShortcuts() { /* ... */ }
+    function renderCategoryList(categoryKey) { /* ... */ }
+    function renderStoreDetail({ storeId, from, category }) { /* ... */ }
+    function renderSearchScreen() { /* ... */ }
+    function navigateToStore(url) { /* ... */ }
+    function renderSearchResults(stores) { /* ... */ }
+    function handleSmartSearch() { /* ... */ }
+    function renderFavoriteButtons(storeId) { /* ... */ }
+    function toggleFavorite(storeId) { /* ... */ }
+    function renderFavoritesScreen() { /* ... */ }
+    function loadRecipesFromStorage() { /* ... */ }
+    function saveRecipesToStorage() { /* ... */ }
+    function renderMyRecipes() { /* ... */ }
+    function showRecipeModal(recipeId = null) { /* ... */ }
+    function addIngredientField(name = '', request = '') { /* ... */ }
+    function saveRecipe() { /* ... */ }
+    function deleteRecipe() { /* ... */ }
+    function loadRecentlyViewedFromStorage() { /* ... */ }
+    function saveRecentlyViewedToStorage() { /* ... */ }
+    function trackViewedStore(storeId) { /* ... */ }
+    function formatRelativeDate(dateString) { /* ... */ }
+    function renderRecentStoresScreen() { /* ... */ }
+    function renderMyOrdersScreen() { /* ... */ }
+    
+    // ==================== 밀키트 기능 ====================
     function renderMealKitList(searchTerm = '') {
         const container = document.getElementById('mealKitListContainer');
         container.innerHTML = '';
         const lowerCaseSearchTerm = searchTerm.toLowerCase().trim();
-
         const filteredKits = mealKitData.filter(kit => {
             if (!lowerCaseSearchTerm) return true;
             if (kit.name.toLowerCase().includes(lowerCaseSearchTerm)) return true;
             return kit.ingredients.some(ing => ing.name.toLowerCase().includes(lowerCaseSearchTerm));
         });
-
         if (filteredKits.length === 0) {
             container.innerHTML = `<p class="text-center text-gray-500 py-10">검색 결과가 없습니다.</p>`;
             return;
         }
-
         filteredKits.forEach(kit => {
             const card = document.createElement('div');
             card.className = 'meal-kit-item flex items-center bg-white p-4 rounded-lg border border-gray-200 cursor-pointer';
@@ -673,7 +303,6 @@
     function showMealKitDetailModal(kitId) {
         const kit = mealKitData.find(k => k.id === kitId);
         if (!kit) return;
-
         const modal = document.createElement('div');
         modal.className = 'modal-overlay';
         const ingredientsHtml = kit.ingredients.map(ing => `
@@ -682,7 +311,6 @@
                 ${ing.request ? `<span class="text-sm text-indigo-600 bg-indigo-50 px-2 rounded-full">${ing.request}</span>` : ''}
             </li>
         `).join('');
-
         modal.innerHTML = `
             <div class="modal-content">
                 <div class="text-center mb-4">
@@ -706,704 +334,88 @@
     function addMealKitToMyRecipes(kitId) {
         const kit = mealKitData.find(k => k.id === kitId);
         if (!kit) return;
-        
         const newRecipe = {
             id: `recipe-${Date.now()}`,
             name: `[밀키트] ${kit.name}`,
             ingredients: [...kit.ingredients]
         };
-        
         userRecipes.unshift(newRecipe);
         saveRecipesToStorage();
-        
         document.querySelector('.modal-overlay').remove();
         showToast(`'${newRecipe.name}' 레시피가 추가되었습니다!`);
         showScreen('smartShoppingScreen');
     }
-    
-    function renderCategoryShortcuts() {
-        const container = document.getElementById('category-shortcut-container');
-        container.innerHTML = Object.entries(categoryMap).map(([name, { emoji, color }]) => `
-            <button onclick="showScreen('categoryListScreen', '${name}')" class="flex flex-col items-center space-y-2">
-                <div class="w-full h-16 flex items-center justify-center bg-${color}-100 rounded-lg shadow-sm text-4xl">${emoji}</div>
-                <span class="text-xs font-medium">${name}</span>
-            </button>
-        `).join('');
-    }
-
-    function renderCategoryList(categoryKey) {
-        const container = document.getElementById('categoryStoreListContainer');
-        let stores;
-
-        if (categoryKey === 'all') {
-            document.getElementById('categoryTitle').textContent = '전체 가게';
-            stores = [...storeData];
-        } else {
-            const categoryInfo = categoryMap[categoryKey];
-            if (!categoryInfo) return;
-            document.getElementById('categoryTitle').textContent = categoryKey;
-            stores = storeData.filter(s => categoryInfo.keywords.includes(s.category));
-        }
-        
-        container.innerHTML = '';
-        switch (currentCategorySort) {
-            case 'orders': stores.sort((a, b) => b.orders - a.orders); break;
-            case 'rating': stores.sort((a, b) => b.rating - a.rating); break;
-        }
-
-        if (stores.length === 0) {
-            container.innerHTML = `<p class="text-center text-gray-500 py-10">해당 카테고리의 가게가 없습니다.</p>`;
-            return;
-        }
-        
-        const uniqueStores = Array.from(new Map(stores.map(store => [store.id, store])).values());
-        uniqueStores.forEach(store => {
-            const tagsHtml = store.mainTags.map(tag => `<span class="bg-gray-200 text-gray-700 text-xs font-medium mr-2 px-2 py-1 rounded">${tag}</span>`).join('');
-            const card = document.createElement('div');
-            card.className = 'flex items-start bg-white p-4 rounded-lg border border-gray-200 relative cursor-pointer store-link';
-            card.dataset.storeId = store.id;
-            card.dataset.from = 'categoryListScreen';
-            card.dataset.category = categoryKey;
-            card.innerHTML = `
-                <div class="w-24 h-24 rounded-md mr-4 bg-gray-200 flex items-center justify-center text-5xl">${getEmojiForProduct(store.name)}</div>
-                <div class="flex-1">
-                    <h3 class="font-bold text-lg text-gray-900">${store.name}</h3>
-                    <div class="flex items-center text-sm text-gray-600 mt-1">
-                        <i class="ph ph-star text-yellow-400 text-base mr-1"></i>
-                        <span class="font-bold">${store.rating}</span>
-                        <span class="mx-1">|</span>
-                        <span>리뷰 ${store.reviews.length}</span>
-                    </div>
-                    <div class="mt-2">${tagsHtml}</div>
-                </div>
-            `;
-            container.appendChild(card);
-        });
-    }
-
-    function renderStoreDetail({ storeId, from, category }) {
-        const store = storeData.find(s => s.id === storeId);
-        if (!store) return;
-
-        trackViewedStore(storeId);
-        
-        document.getElementById('storeDetailTitle').textContent = store.name;
-        document.getElementById('backToCategoryBtn').onclick = () => showScreen(from, from === 'categoryListScreen' ? category : null);
-        
-        renderFavoriteButtons(storeId);
-        document.getElementById('storeDetailInfo').innerHTML = `
-            <div class="flex items-center">
-                <div class="w-28 h-28 rounded-lg mr-4 bg-gray-200 flex items-center justify-center text-6xl">${getEmojiForProduct(store.name)}</div>
-                <div>
-                    <h2 class="text-2xl font-bold">${store.name}</h2>
-                    <div class="flex items-center text-lg text-gray-600 mt-2">
-                        <i class="ph ph-star-fill text-yellow-400 text-2xl mr-1"></i>
-                        <span class="font-bold text-2xl">${store.rating}</span>
-                    </div>
-                    <p class="text-gray-500 mt-1">주문수 ${store.orders.toLocaleString()}</p>
-                </div>
-            </div>`;
-        const productListContainer = document.getElementById('storeProductListContainer');
-        productListContainer.innerHTML = '';
-        if (store.products && store.products.length > 0) {
-            store.products.forEach(product => {
-                const productEl = document.createElement('div');
-                productEl.className = 'flex items-center justify-between bg-gray-50 p-4 rounded-lg';
-                productEl.innerHTML = `
-                    <div class="flex items-center">
-                        <div class="w-16 h-16 rounded-md mr-4 bg-gray-200 flex items-center justify-center text-3xl">${product.emoji}</div>
-                        <div>
-                            <h4 class="font-semibold text-gray-800">${product.name}</h4>
-                            <p class="text-indigo-600 font-bold mt-1">${product.price.toLocaleString()}원</p>
-                        </div>
-                    </div>
-                    <button class="add-to-cart-btn px-4 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors"
-                        data-store-id="${store.id}"
-                        data-store-name="${store.name}"
-                        data-product-id="${product.id}"
-                        data-product-name="${product.name}"
-                        data-product-price="${product.price}"
-                        data-product-emoji="${product.emoji}">
-                        담기
-                    </button>`;
-                productListContainer.appendChild(productEl);
-            });
-        } else {
-            productListContainer.innerHTML = `<p class="text-center text-gray-500 py-4">등록된 상품 정보가 없습니다.</p>`;
-        }
-        
-        const reviewsContainer = document.getElementById('storeReviewsContainer');
-        reviewsContainer.innerHTML = `<p class="text-center text-gray-500">아직 작성된 리뷰가 없습니다.</p>`;
-    }
-    
-    // ==================== 검색 기능 ====================
-    function renderSearchScreen() {
-        const searchInput = document.getElementById('searchInput');
-        searchInput.value = '';
-        renderSearchResults(storeData);
-    }
-
-    function navigateToStore(url) {
-        if (url && url !== 'null' && url.trim() !== '') {
-            const fullUrl = url.startsWith('http') ? url : `https://${url}`;
-            window.open(fullUrl, '_blank');
-        } else {
-            showMessage('길찾기 정보가 없는 상점입니다.');
-        }
-    }
-
-    function renderSearchResults(stores) {
-        const container = document.getElementById('searchResultsContainer');
-        container.innerHTML = '';
-
-        if (!stores || stores.length === 0) {
-            container.innerHTML = `<p class="text-center text-gray-500 mt-8">검색 결과가 없습니다.</p>`;
-            return;
-        }
-        
-        const uniqueStores = Array.from(new Map(stores.map(store => [store.id, store])).values());
-        uniqueStores.forEach(store => {
-            const storeItem = document.createElement('div');
-            storeItem.className = 'search-store-item';
-            
-            const productsList = store.products.slice(0, 5).map(p => p.name).join(', ') + (store.products.length > 5 ? '...' : '');
-
-            storeItem.innerHTML = `
-                <div class="flex justify-between items-start mb-2">
-                    <h3 class="text-lg font-bold text-gray-900">${store.name}</h3>
-                    <span class="bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded-full flex-shrink-0 ml-2">${store.category}</span>
-                </div>
-                <p class="text-sm text-gray-700 mb-2 truncate"><b>주요상품:</b> ${productsList || '정보 없음'}</p>
-                <p class="text-sm text-gray-500 mb-4">${store.description || ''}</p>
-                <div class="flex justify-end gap-2 mt-auto">
-                    <button class="navigate-btn px-4 py-2 text-sm font-semibold bg-blue-500 text-white rounded-full hover:bg-blue-600" data-url="${store.url}">길찾기</button>
-                    <button class="store-link px-4 py-2 text-sm font-semibold bg-orange-500 text-white rounded-full hover:bg-orange-600" data-store-id="${store.id}" data-from="searchScreen">가게보기</button>
-                </div>
-            `;
-            container.appendChild(storeItem);
-        });
-    }
-
-    // ==================== 스마트 장보기 & 관심 가게 기능 ====================
-    function handleSmartSearch() {
-        const searchInput = document.getElementById('smartSearchInput');
-        const container = document.getElementById('smartSearchResultsContainer');
-        const searchTerms = searchInput.value.split(',')
-            .map(term => term.trim().split(' ')[0])
-            .filter(term => term.length > 0);
-
-        if (searchTerms.length === 0) {
-            container.innerHTML = '<p class="text-center text-gray-500 py-10">찾고 싶은 상품을 쉼표(,)로 구분하여 검색해 보세요.<br>또는 저장된 레시피를 이용해 보세요.</p>';
-            return;
-        }
-
-        let resultsHtml = '';
-        searchTerms.forEach(term => {
-            const matchingProducts = [];
-            storeData.forEach(store => {
-                store.products.forEach(product => {
-                    if (product.name.toLowerCase().includes(term.toLowerCase())) {
-                        matchingProducts.push({
-                            ...product,
-                            storeId: store.id,
-                            storeName: store.name,
-                            rating: store.rating,
-                            reviews: store.reviews.length
-                        });
-                    }
-                });
-            });
-
-            matchingProducts.sort((a, b) => a.price - b.price);
-
-            resultsHtml += `
-                <div class="border rounded-lg mb-3 overflow-hidden">
-                    <button class="smart-accordion-toggle w-full p-4 text-left bg-gray-50 hover:bg-gray-100 flex justify-between items-center">
-                        <span class="font-bold text-lg text-indigo-700">'${term}' 검색 결과</span>
-                        <i class="ph ph-caret-down text-xl transition-transform"></i>
-                    </button>
-                    <div class="smart-accordion-content hidden bg-white p-4 space-y-3">
-            `;
-            if (matchingProducts.length > 0) {
-                matchingProducts.forEach(product => {
-                    resultsHtml += `
-                        <div class="flex items-center bg-white p-3 rounded-lg border">
-                            <div class="flex-1">
-                                <button class="font-semibold text-gray-800 hover:underline store-link" data-store-id="${product.storeId}" data-from="smartShoppingScreen">${product.storeName}</button>
-                                <div class="flex items-center text-sm text-gray-500 mt-1">
-                                    <i class="ph ph-star text-yellow-400 mr-1"></i> ${product.rating}
-                                    <span class="mx-2">|</span>
-                                    <span class="font-bold text-indigo-600">${product.price.toLocaleString()}원</span>
-                                </div>
-                            </div>
-                            <button class="add-to-cart-btn ml-4 px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-indigo-700 transition-colors whitespace-nowrap"
-                                data-store-id="${product.storeId}"
-                                data-store-name="${product.storeName}"
-                                data-product-id="${product.id}"
-                                data-product-name="${product.name}"
-                                data-product-price="${product.price}"
-                                data-product-emoji="${product.emoji}">
-                                담기
-                            </button>
-                        </div>
-                    `;
-                });
-            } else {
-                resultsHtml += `<p class="text-center text-gray-500 py-4">'${term}'을(를) 판매하는 가게를 찾을 수 없습니다.</p>`;
-            }
-
-            resultsHtml += `
-                    </div>
-                </div>
-            `;
-        });
-        container.innerHTML = resultsHtml;
-    }
-    
-    function renderFavoriteButtons(storeId) {
-        const container = document.getElementById('favoriteButtonsContainer');
-        if (!container) return;
-
-        const storeIdNum = parseInt(storeId, 10);
-        const isFavorited = favoriteStores.includes(storeIdNum);
-        if (isFavorited) {
-            container.innerHTML = `<button class="remove-favorite-btn text-sm font-semibold text-gray-600 bg-gray-200 px-3 py-2 rounded-lg hover:bg-gray-300" data-store-id="${storeIdNum}">관심 가게 삭제</button>`;
-        } else {
-            container.innerHTML = `<button class="add-favorite-btn text-sm font-semibold text-indigo-600 bg-indigo-100 px-3 py-2 rounded-lg hover:bg-indigo-200" data-store-id="${storeIdNum}">관심 가게 등록</button>`;
-        }
-    }
-
-    function toggleFavorite(storeId) {
-        const storeIdNum = parseInt(storeId, 10);
-        const index = favoriteStores.indexOf(storeIdNum);
-        if (index > -1) {
-            favoriteStores.splice(index, 1);
-        } else {
-            favoriteStores.push(storeIdNum);
-        }
-        
-        if (document.getElementById('storeDetailScreen').classList.contains('active')) {
-            renderFavoriteButtons(storeIdNum);
-        }
-        
-        if (document.getElementById('favoritesScreen').classList.contains('active')) {
-            renderFavoritesScreen();
-        }
-    }
-
-    function renderFavoritesScreen() {
-        const container = document.getElementById('favoritesScreen').querySelector('main');
-        container.innerHTML = '';
-
-        const favoriteStoreDetails = storeData.filter(store => favoriteStores.includes(store.id));
-
-        if (favoriteStoreDetails.length === 0) {
-            container.innerHTML = `<p class="text-center text-gray-500 p-10">관심 가게가 없습니다.</p>`;
-            return;
-        }
-
-        favoriteStoreDetails.forEach(store => {
-            const tagsHtml = store.mainTags.map(tag => `<span class="bg-gray-200 text-gray-700 text-xs font-medium mr-2 px-2 py-1 rounded">${tag}</span>`).join('');
-            const card = document.createElement('div');
-            card.className = 'flex items-start bg-white p-4 rounded-lg border border-gray-200 relative cursor-pointer store-link';
-            card.dataset.storeId = store.id;
-            card.dataset.from = 'favoritesScreen';
-            card.innerHTML = `
-                <div class="w-24 h-24 rounded-md mr-4 bg-gray-200 flex items-center justify-center text-5xl">${getEmojiForProduct(store.name)}</div>
-                <div class="flex-1">
-                    <h3 class="font-bold text-lg text-gray-900">${store.name}</h3>
-                    <div class="flex items-center text-sm text-gray-600 mt-1">
-                        <i class="ph ph-star text-yellow-400 text-base mr-1"></i>
-                        <span class="font-bold">${store.rating}</span>
-                        <span class="mx-1">|</span>
-                        <span>리뷰 ${store.reviews.length}</span>
-                    </div>
-                    <div class="mt-2">${tagsHtml}</div>
-                </div>
-            `;
-            container.appendChild(card);
-        });
-    }
-
-    // ==================== 레시피 관리 기능 ====================
-    function loadRecipesFromStorage() {
-        const recipes = localStorage.getItem('cheongnyamri.recipes');
-        userRecipes = recipes ? JSON.parse(recipes) : [];
-    }
-
-    function saveRecipesToStorage() {
-        localStorage.setItem('cheongnyamri.recipes', JSON.stringify(userRecipes));
-    }
-
-    function renderMyRecipes() {
-        const container = document.getElementById('myRecipesList');
-        container.innerHTML = '';
-        if (userRecipes.length === 0) {
-            container.innerHTML = `<p class="text-center text-sm text-gray-500 py-2">저장된 레시피가 없습니다.</p>`;
-        } else {
-            userRecipes.forEach(recipe => {
-                const recipeEl = document.createElement('div');
-                recipeEl.className = 'flex justify-between items-center bg-gray-100 p-3 rounded-lg';
-                recipeEl.innerHTML = `
-                    <button class="font-semibold text-left flex-1 load-recipe-btn" data-recipe-id="${recipe.id}">${recipe.name}</button>
-                    <button class="edit-recipe-btn p-1 text-gray-500 hover:text-indigo-600" data-recipe-id="${recipe.id}"><i class="ph ph-pencil-simple"></i></button>
-                `;
-                container.appendChild(recipeEl);
-            });
-        }
-    }
-
-    function showRecipeModal(recipeId = null) {
-        showScreen('recipeModalScreen');
-        const titleEl = document.getElementById('recipeModalTitle');
-        const nameInput = document.getElementById('recipeNameInput');
-        const idInput = document.getElementById('recipeIdInput');
-        const ingredientsContainer = document.getElementById('recipeIngredientsContainer');
-        const deleteBtn = document.getElementById('deleteRecipeBtn');
-        ingredientsContainer.innerHTML = '';
-        
-        if (recipeId) {
-            const recipe = userRecipes.find(r => r.id === recipeId);
-            titleEl.textContent = '레시피 수정';
-            nameInput.value = recipe.name;
-            idInput.value = recipe.id;
-            recipe.ingredients.forEach(ing => addIngredientField(ing.name, ing.request));
-            deleteBtn.classList.remove('hidden');
-        } else {
-            titleEl.textContent = '새 레시피 추가';
-            nameInput.value = '';
-            idInput.value = '';
-            addIngredientField(); // 시작을 위한 빈 필드 추가
-            deleteBtn.classList.add('hidden');
-        }
-    }
-
-    function addIngredientField(name = '', request = '') {
-        const container = document.getElementById('recipeIngredientsContainer');
-        const div = document.createElement('div');
-        div.className = 'flex items-center space-x-2 bg-white p-2 border rounded-lg';
-        div.innerHTML = `
-            <div class="flex-1">
-                <input type="text" class="recipe-ingredient-name w-full text-sm p-1 border-b" placeholder="재료 (예: 김치 1포기)" value="${name}">
-                <input type="text" class="recipe-ingredient-request w-full text-xs p-1 text-gray-500" placeholder="요청사항 (예: 찌개용으로 썰어주세요)" value="${request}">
-            </div>
-            <button class="remove-ingredient-btn text-red-500 p-1"><i class="ph ph-trash"></i></button>
-        `;
-        container.appendChild(div);
-    }
-
-    function saveRecipe() {
-        const recipeId = document.getElementById('recipeIdInput').value;
-        const recipeName = document.getElementById('recipeNameInput').value.trim();
-        if (!recipeName) {
-            showMessage('레시피 이름을 입력해주세요.');
-            return;
-        }
-
-        const ingredients = [];
-        document.querySelectorAll('#recipeIngredientsContainer > div').forEach(div => {
-            const name = div.querySelector('.recipe-ingredient-name').value.trim();
-            const request = div.querySelector('.recipe-ingredient-request').value.trim();
-            if (name) {
-                ingredients.push({ name, request });
-            }
-        });
-        if (ingredients.length === 0) {
-            showMessage('하나 이상의 재료를 입력해주세요.');
-            return;
-        }
-
-        if (recipeId) { // 기존 레시피 수정
-            const recipeIndex = userRecipes.findIndex(r => r.id === recipeId);
-            userRecipes[recipeIndex] = { ...userRecipes[recipeIndex], name: recipeName, ingredients };
-        } else { // 새 레시피 생성
-            const newRecipe = {
-                id: `recipe-${Date.now()}`,
-                name: recipeName,
-                ingredients: ingredients
-            };
-            userRecipes.push(newRecipe);
-        }
-
-        saveRecipesToStorage();
-        showScreen('smartShoppingScreen');
-    }
-    
-    function deleteRecipe() {
-        const recipeId = document.getElementById('recipeIdInput').value;
-        userRecipes = userRecipes.filter(r => r.id !== recipeId);
-        saveRecipesToStorage();
-        showScreen('smartShoppingScreen');
-    }
-    
-    // ==================== 최근 본 가게 ====================
-    function loadRecentlyViewedFromStorage() {
-        const recent = localStorage.getItem('cheongnyamri.recentStores');
-        recentlyViewedStores = recent ? JSON.parse(recent) : [];
-    }
-
-    function saveRecentlyViewedToStorage() {
-        localStorage.setItem('cheongnyamri.recentStores', JSON.stringify(recentlyViewedStores));
-    }
-
-    function trackViewedStore(storeId) {
-        recentlyViewedStores = recentlyViewedStores.filter(item => item.storeId !== storeId);
-        recentlyViewedStores.unshift({ storeId: storeId, viewedAt: new Date().toISOString() });
-        recentlyViewedStores = recentlyViewedStores.slice(0, 20);
-        saveRecentlyViewedToStorage();
-    }
-
-    function formatRelativeDate(dateString) {
-        const days = ['일', '월', '화', '수', '목', '금', '토'];
-        const now = new Date();
-        const viewedDate = new Date(dateString);
-        
-        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        const yesterday = new Date(today);
-        yesterday.setDate(yesterday.getDate() - 1);
-
-        if (viewedDate >= today) return '오늘';
-        if (viewedDate >= yesterday) return '어제';
-        return `${viewedDate.getMonth() + 1}월 ${viewedDate.getDate()}일 ${days[viewedDate.getDay()]}요일`;
-    }
-
-    function renderRecentStoresScreen() {
-        const container = document.getElementById('recentStoresScreen').querySelector('main');
-        container.innerHTML = '';
-
-        if (recentlyViewedStores.length === 0) {
-            container.innerHTML = `<p class="text-center text-gray-500 p-10">최근 본 가게가 없습니다.</p>`;
-            return;
-        }
-
-        const groupedByDate = recentlyViewedStores.reduce((acc, item) => {
-            const dateKey = formatRelativeDate(item.viewedAt);
-            if (!acc[dateKey]) {
-                acc[dateKey] = [];
-            }
-            acc[dateKey].push(item);
-            return acc;
-        }, {});
-
-        for (const dateKey in groupedByDate) {
-            const dateHeader = document.createElement('h2');
-            dateHeader.className = 'text-md font-bold text-gray-600 pb-2 border-b';
-            dateHeader.textContent = dateKey;
-            container.appendChild(dateHeader);
-
-            const storesOnDate = groupedByDate[dateKey];
-            storesOnDate.forEach(({ storeId }) => {
-                const store = storeData.find(s => s.id === storeId);
-                if (!store) return;
-
-                const tagsHtml = store.mainTags.map(tag => `<span class="bg-gray-200 text-gray-700 text-xs font-medium mr-2 px-2 py-1 rounded">${tag}</span>`).join('');
-                const card = document.createElement('div');
-                card.className = 'flex items-start bg-white p-4 rounded-lg border border-gray-200 relative cursor-pointer store-link';
-                card.dataset.storeId = store.id;
-                card.dataset.from = 'recentStoresScreen';
-                card.innerHTML = `
-                    <div class="w-24 h-24 rounded-md mr-4 bg-gray-200 flex items-center justify-center text-5xl">${getEmojiForProduct(store.name)}</div>
-                    <div class="flex-1">
-                        <h3 class="font-bold text-lg text-gray-900">${store.name}</h3>
-                        <div class="flex items-center text-sm text-gray-600 mt-1">
-                            <i class="ph ph-star text-yellow-400 text-base mr-1"></i>
-                            <span class="font-bold">${store.rating}</span>
-                            <span class="mx-1">|</span>
-                            <span>리뷰 ${store.reviews.length}</span>
-                        </div>
-                        <div class="mt-2">${tagsHtml}</div>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
-    }
-
 
     // ==================== 픽업 및 주문 내역 기능 ====================
-     async function handleCheckout() {
-        const userId = document.getElementById('userIdInput').value.trim();
-        if (!userId) {
-            showMessage('사용자 ID를 입력해주세요.');
-            return;
-        }
-
-        const orderId = `CNY-${Date.now()}`;
-        const newOrder = {
-            orderId: orderId,
-            userId: userId,
-            cart: JSON.parse(JSON.stringify(shoppingCart)),
-            date: new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' }),
-            totalPrice: Object.values(shoppingCart).reduce((sum, store) => sum + Object.values(store.items).reduce((s, item) => s + item.price * item.quantity, 0), 0)
-        };
-
-        try {
-            // 서버에 주문 정보 전송
-            const response = await fetch(`${API_BASE_URL}/api/orders`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(newOrder)
-            });
-
-            if (!response.ok) throw new Error('서버에 주문을 저장하지 못했습니다.');
-
-            // 성공 시 화면 처리
-            shoppingCart = {};
-            updateCartCountIndicator();
-            const modal = document.querySelector('.modal-overlay');
-            if (modal) modal.remove();
-            showToast('주문이 성공적으로 접수되었습니다!');
-            showScreen('pickupScreen', { userId: userId });
-
-        } catch (error) {
-            console.error('Checkout Error:', error);
-            showMessage('주문 처리 중 오류가 발생했습니다.');
-        }
-    }
-    async function renderFilteredPickupOrders(userId) {
-        const resultsContainer = document.getElementById('pickupOrderResultsContainer');
-        resultsContainer.innerHTML = `<p class="text-center text-gray-500">주문 내역을 불러오는 중...</p>`;
-
-        try {
-            // 서버에서 주문 정보 가져오기
-            const response = await fetch(`${API_BASE_URL}/api/orders/${userId}`);
-            if (!response.ok) throw new Error('주문 내역을 불러오지 못했습니다.');
-            
-            const userOrders = await response.json();
-
-            if (userOrders.length === 0) {
-                resultsContainer.innerHTML = `<p class="text-center text-gray-500 p-10">해당 ID의 주문 내역이 없습니다.</p>`;
-                return;
-            }
-
-            resultsContainer.innerHTML = '';
-            userOrders.forEach(order => {
-                const orderEl = document.createElement('div');
-                orderEl.className = 'mb-8';
-                
-                // DB에서 온 데이터(order.order_details)를 사용하도록 수정
-                const details = order.order_details;
-                let itemsHtml = '';
-                for (const storeId in details.cart) {
-                    const store = details.cart[storeId];
-                    //... (기존과 동일한 HTML 생성 로직)
-                }
-                
-                const qrCodeData = JSON.stringify({ userId: order.user_id, orderId: order.order_id });
-
-                orderEl.innerHTML = `
-                    <div class="bg-gray-50 p-6 rounded-lg text-center">
-                        <h2 class="text-lg font-semibold text-gray-800">픽업 준비 완료</h2>
-                        <div id="qrcode-${order.order_id}" class="mt-4 flex justify-center"></div>
-                        <p class="mt-4 text-sm font-mono bg-gray-200 p-2 rounded inline-block">주문번호: ${order.order_id}</p>
-                        <p class="mt-2 text-sm font-mono bg-gray-200 p-2 rounded inline-block">사용자 ID: ${order.user_id}</p>
-                    </div>
-                    `;
-                resultsContainer.appendChild(orderEl);
-                new QRCode(document.getElementById(`qrcode-${order.order_id}`), { text: qrCodeData, width: 180, height: 180 });
-            });
-        } catch (error) {
-            console.error('Fetch Orders Error:', error);
-            resultsContainer.innerHTML = `<p class="text-center text-red-500 p-10">오류가 발생했습니다.</p>`;
-        }
-    }
-
-    function renderPickupScreen() {
-        const pickupScreenMain = document.getElementById('pickupScreen').querySelector('main');
-        pickupScreenMain.innerHTML = '';
-
-        if (completedOrders.length === 0) {
-            pickupScreenMain.innerHTML = `<p class="text-center text-gray-500 p-10">완료된 주문이 없습니다. 장바구니에서 결제를 먼저 진행해주세요.</p>`;
-            return;
-        }
-
-        [...completedOrders].reverse().forEach(order => {
-            const orderEl = document.createElement('div');
-            orderEl.className = 'mb-8';
-            
-            let itemsHtml = '';
-            for (const storeId in order.cart) {
-                const store = order.cart[storeId];
-                const items = Object.values(store.items).map(item => {
-                    const requestText = item.request ? ` (${item.request})` : '';
-                    return `${item.name} ${item.quantity}개${requestText}`;
-                }).join(', ');
-
-                itemsHtml += `
-                    <div class="flex items-start bg-gray-100 p-3 rounded-lg">
-                        <div class="w-12 h-12 rounded-md mr-4 bg-gray-200 flex items-center justify-center text-3xl">${getEmojiForProduct(store.storeName)}</div>
-                        <div><p class="font-semibold text-gray-800">${store.storeName}</p><p class="text-gray-600">${items}</p></div>
-                    </div>`;
-            }
-
-            orderEl.innerHTML = `
-                <div class="bg-gray-50 p-6 rounded-lg text-center">
-                    <h2 class="text-lg font-semibold text-gray-800">픽업 준비 완료</h2>
-                    <p class="text-gray-500 mt-1">픽업 센터에서 아래 QR코드를 보여주세요.</p>
-                    <div id="qrcode-${order.orderId}" class="mt-4 flex justify-center"></div>
-                    <p class="mt-4 text-sm font-mono bg-gray-200 p-2 rounded inline-block">주문번호: ${order.orderId}</p>
-                </div>
-                <div class="mt-8">
-                    <h3 class="text-lg font-bold text-gray-800 mb-4">주문 내역</h3>
-                    <div class="space-y-3">${itemsHtml}</div>
-                </div>
-                <hr class="my-8 border-gray-300">
-            `;
-            pickupScreenMain.appendChild(orderEl);
-
-            new QRCode(document.getElementById(`qrcode-${order.orderId}`), { 
-                text: order.orderId, 
-                width: 180, 
-                height: 180 
-            });
-        });
-    }
-
-    function renderMyOrdersScreen() {
-        const container = document.getElementById('myOrdersScreen').querySelector('main');
-        container.innerHTML = '';
-
-        if (completedOrders.length === 0) {
-            container.innerHTML = `<p class="text-center text-gray-500 p-10">주문 내역이 없습니다.</p>`;
-            return;
-        }
-
-        [...completedOrders].reverse().forEach(order => {
-            let orderItemsHtml = '';
-            for (const storeId in order.cart) {
-                const store = order.cart[storeId];
-                const itemNames = Object.values(store.items).map(item => {
-                     const requestText = item.request ? `<span class="text-xs text-indigo-600"> (${item.request})</span>` : '';
-                    return `${item.name} ${item.quantity}개${requestText}`;
-                }).join('<br>');
-                 orderItemsHtml += `
-                    <div class="mt-2">
-                        <h4 class="font-semibold text-lg text-gray-800">${store.storeName}</h4>
-                        <p class="text-gray-600 pl-1">${itemNames}</p>
-                    </div>
-                `;
-            }
-
-            const orderCard = document.createElement('div');
-            orderCard.className = 'bg-white p-4 rounded-lg border border-gray-200 shadow-sm';
-            orderCard.innerHTML = `
-                <p class="text-sm text-gray-500 mb-2">${order.date} - 픽업</p>
-                ${orderItemsHtml}
-                <div class="border-t mt-4 pt-3 flex justify-between items-center">
-                    <span class="font-semibold text-gray-700">결제금액</span>
-                    <span class="font-bold text-lg text-gray-900">${order.totalPrice.toLocaleString()}원</span>
-                </div>
-            `;
-            container.appendChild(orderCard);
-        });
+    async function handleCheckout() {
+        // ... (서버 연동된 handleCheckout 함수)
     }
     
+    // 이전에 중복으로 정의되었던 renderPickupScreen 함수를 제거하고,
+    // 서버와 연동되는 버전인 renderFilteredPickupOrders 와 setupPickupScreen 만 남깁니다.
+    function setupPickupScreen(param) {
+        // ... (서버 연동된 setupPickupScreen 함수)
+    }
+    
+    async function renderFilteredPickupOrders(userId) {
+        // ... (서버 연동된 renderFilteredPickupOrders 함수)
+    }
+
+    // ==================== 화면 전환 함수 ====================
+    function showScreen(screenId, param = null) {
+        const targetScreen = document.getElementById(screenId);
+        if (!targetScreen) {
+            console.error(`showScreen: screen with id "${screenId}" not found.`);
+            return;
+        }
+        const appContainer = document.getElementById('appContainer');
+        document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
+        targetScreen.classList.add('active');
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.screen === screenId);
+        });
+        if (screenId === 'mapScreen') {
+            appContainer.classList.remove('max-w-lg');
+            const storedUrl = getStoredMapUrl();
+            applyMarketMapUrl(storedUrl);
+            if (window.innerHeight > window.innerWidth) {
+                showToast("최적의 지도 경험을 위해 기기를 가로로 돌려주세요.");
+            }
+        } else {
+            appContainer.classList.add('max-w-lg');
+        }
+        switch (screenId) {
+            case 'searchScreen': renderSearchScreen(); break;
+            case 'pickupScreen': setupPickupScreen(param); break; // renderPickupScreen -> setupPickupScreen
+            case 'myOrdersScreen': renderMyOrdersScreen(); break;
+            case 'favoritesScreen': renderFavoritesScreen(); break;
+            case 'recentStoresScreen': renderRecentStoresScreen(); break;
+            case 'categoryListScreen': if (param) renderCategoryList(param); break;
+            case 'mealKitScreen': renderMealKitList(); break;
+            case 'storeDetailScreen': if (param) renderStoreDetail(param); break;
+            case 'smartShoppingScreen':
+                document.getElementById('smartSearchResultsContainer').innerHTML = '<p class="text-center text-gray-500 py-10">찾고 싶은 상품을 쉼표(,)로 구분하여 검색해 보세요.<br>또는 저장된 레시피를 이용해 보세요.</p>';
+                document.getElementById('smartSearchInput').value = '';
+                renderMyRecipes();
+                break;
+        }
+    }
+
     // ==================== 이벤트 리스너 설정 ====================
     function setupAllEventListeners() {
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            const query = e.target.value.toLowerCase().trim().replace(/\s/g, '');
-            if (query === "") {
-                renderSearchResults(storeData);
+        document.getElementById('mealKitSearchInput').addEventListener('input', (e) => {
+            renderMealKitList(e.target.value);
+        });
+
+        document.body.addEventListener('click', (e) => {
+            const mealKitItem = e.target.closest('.meal-kit-item');
+            const addKitBtn = e.target.closest('.add-kit-to-recipe-btn');
+            if (mealKitItem) {
+                showMealKitDetailModal(mealKitItem.dataset.kitId);
+                return;
+            }
+            if (addKitBtn) {
+                addMealKitToMyRecipes(addKitBtn.dataset.kitId);
                 return;
             }
             const filteredStores = storeData.filter(store => {
@@ -1524,7 +536,7 @@
         showScreen('homeScreen');
     });
 
-    // 전역 스코프에 함수 노출
+    // ==================== 전역 스코프에 함수 노출 ====================
     window.showScreen = showScreen;
     window.showCartModal = showCartModal;
     window.showNotificationModal = showNotificationModal;
@@ -1532,4 +544,3 @@
     window.showPromptBox = showPromptBox;
     window.setMarketMapUrl = setMarketMapUrl;
 })();
-

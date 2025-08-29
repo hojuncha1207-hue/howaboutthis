@@ -280,8 +280,7 @@
 
 
     // ==================== MEAL KIT DATA ====================
-const mealKitData = const mealKitData = 
-    [
+const mealKitData = [
     {
         "id": "mk80",
         "name": "된장찌개",
@@ -511,8 +510,8 @@ const mealKitData = const mealKitData =
             { "name": "식용유", "request": "" },
             { "name": "레몬 1/4조각", "request": "선택사항" }
         ]
-    };
-    ]
+    }
+];
     
     // ==================== 데이터 처리 및 앱 상태 관리 ====================
     const categoryMap = {
@@ -719,6 +718,7 @@ const mealKitData = const mealKitData =
     window.setMarketMapUrl = setMarketMapUrl;
 
 })();
+
 
 
 

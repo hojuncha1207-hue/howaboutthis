@@ -2,7 +2,7 @@
 (() => {
     // ==================== EMOJI NORMALIZATION UTILITY ====================
     // 1) 자주 쓰는 별칭 → 기준어로 통일
-    const API_BASE_URL = 'https://두목님-앱이름.onrender.com';
+    const API_BASE_URL = 'https://cheongnyamri-app.onrender.com';
     const ALIASES = {
       '샤인머스켓': '포도', '캠벨포도': '포도', '거봉': '포도', '방울토마토': '토마토',
       '천도복숭아': '복숭아', '씨없는수박': '수박', '참외': '멜론', '애호박': '호박',
@@ -210,6 +210,32 @@
         {"고유ID":123,"가게이름":"화장실1","가게분류":"편의시설","main_product":null,"위치":"서울 동대문구","특징":"공용시설","좌표":"414,346","url":"tourmaline-malabi-9e1207.netlify.app"},
     ];
 
+    const mealKitData = [
+        {
+            id: 'mk1', name: '돼지고기 김치찌개', emoji: '🥘', description: '얼큰하고 진한 한국인의 소울푸드',
+            ingredients: [
+                { name: '김치', request: '찌개용' }, { name: '목살', request: '찌개용' },
+                { name: '두부', request: '' }, { name: '대파', request: '어슷썰기' },
+                { name: '양파', request: '' }, { name: '고춧가루', request: '' }
+            ]
+        },
+        {
+            id: 'mk2', name: '소고기 된장찌개', emoji: '🍲', description: '구수한 된장과 부드러운 소고기의 조화',
+            ingredients: [
+                { name: '소고기', request: '찌개용 양지' }, { name: '된장', request: '' },
+                { name: '두부', request: '' }, { name: '애호박', request: '' },
+                { name: '양파', request: '' }, { name: '청양고추', request: '' }
+            ]
+        },
+        {
+            id: 'mk3', name: '매콤 제육볶음', emoji: '🍳', description: '매콤달콤 밥도둑 대표 메뉴',
+            ingredients: [
+                { name: '앞다리살', request: '제육용' }, { name: '양파', request: '' },
+                { name: '대파', request: '' }, { name: '깻잎', request: '' },
+                { name: '고추장', request: '' }, { name: '다진 마늘', request: '' }
+            ]
+        }
+    ];
     // ==================== 데이터 처리 및 앱 상태 관리 ====================
     
     // --- 카테고리 매핑 (데이터 정제 및 확장) ---
@@ -601,6 +627,7 @@
             case 'favoritesScreen': renderFavoritesScreen(); break;
             case 'recentStoresScreen': renderRecentStoresScreen(); break;
             case 'categoryListScreen': if (param) renderCategoryList(param); break;
+            case 'mealKitScreen': renderMealKitList(); break;
             case 'storeDetailScreen': if (param) renderStoreDetail(param); break;
             case 'smartShoppingScreen':
                 document.getElementById('smartSearchResultsContainer').innerHTML = '<p class="text-center text-gray-500 py-10">찾고 싶은 상품을 쉼표(,)로 구분하여 검색해 보세요.<br>또는 저장된 레시피를 이용해 보세요.</p>';
@@ -608,6 +635,90 @@
                 renderMyRecipes();
                 break;
         }
+    }
+    function renderMealKitList(searchTerm = '') {
+        const container = document.getElementById('mealKitListContainer');
+        container.innerHTML = '';
+        const lowerCaseSearchTerm = searchTerm.toLowerCase().trim();
+
+        const filteredKits = mealKitData.filter(kit => {
+            if (!lowerCaseSearchTerm) return true;
+            if (kit.name.toLowerCase().includes(lowerCaseSearchTerm)) return true;
+            return kit.ingredients.some(ing => ing.name.toLowerCase().includes(lowerCaseSearchTerm));
+        });
+
+        if (filteredKits.length === 0) {
+            container.innerHTML = `<p class="text-center text-gray-500 py-10">검색 결과가 없습니다.</p>`;
+            return;
+        }
+
+        filteredKits.forEach(kit => {
+            const card = document.createElement('div');
+            card.className = 'meal-kit-item flex items-center bg-white p-4 rounded-lg border border-gray-200 cursor-pointer';
+            card.dataset.kitId = kit.id;
+            const ingredientsPreview = kit.ingredients.slice(0, 3).map(ing => ing.name.split(' ')[0]).join(', ') + ' 등';
+            card.innerHTML = `
+                <div class="w-20 h-20 rounded-md mr-4 bg-gray-100 flex items-center justify-center text-5xl">${kit.emoji}</div>
+                <div class="flex-1">
+                    <h3 class="font-bold text-lg text-gray-900">${kit.name}</h3>
+                    <p class="text-sm text-gray-600 mt-1">${kit.description}</p>
+                    <p class="text-xs text-gray-500 mt-2">${ingredientsPreview}</p>
+                </div>
+                <i class="ph ph-caret-right text-gray-400 text-2xl"></i>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    function showMealKitDetailModal(kitId) {
+        const kit = mealKitData.find(k => k.id === kitId);
+        if (!kit) return;
+
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+        const ingredientsHtml = kit.ingredients.map(ing => `
+            <li class="flex justify-between py-2 border-b last:border-b-0">
+                <span class="text-gray-800">${ing.name}</span>
+                ${ing.request ? `<span class="text-sm text-indigo-600 bg-indigo-50 px-2 rounded-full">${ing.request}</span>` : ''}
+            </li>
+        `).join('');
+
+        modal.innerHTML = `
+            <div class="modal-content">
+                <div class="text-center mb-4">
+                    <span class="text-6xl">${kit.emoji}</span>
+                    <h3 class="text-2xl font-bold mt-2">${kit.name}</h3>
+                    <p class="text-gray-600 mt-1">${kit.description}</p>
+                </div>
+                <h4 class="font-semibold mb-2 text-gray-800">포함된 재료</h4>
+                <ul class="bg-gray-50 p-3 rounded-lg mb-6">${ingredientsHtml}</ul>
+                <div class="flex flex-col space-y-2">
+                    <button class="add-kit-to-recipe-btn w-full px-4 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700" data-kit-id="${kit.id}">
+                        이 밀키트 레시피 담기
+                    </button>
+                    <button onclick="this.closest('.modal-overlay').remove()" class="w-full px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-100">취소</button>
+                </div>
+            </div>
+        `;
+        document.getElementById('modalContainer').appendChild(modal);
+    }
+    
+    function addMealKitToMyRecipes(kitId) {
+        const kit = mealKitData.find(k => k.id === kitId);
+        if (!kit) return;
+        
+        const newRecipe = {
+            id: `recipe-${Date.now()}`,
+            name: `[밀키트] ${kit.name}`,
+            ingredients: [...kit.ingredients]
+        };
+        
+        userRecipes.unshift(newRecipe);
+        saveRecipesToStorage();
+        
+        document.querySelector('.modal-overlay').remove();
+        showToast(`'${newRecipe.name}' 레시피가 추가되었습니다!`);
+        showScreen('smartShoppingScreen');
     }
     
     function renderCategoryShortcuts() {
@@ -1330,8 +1441,23 @@
                 e.target.closest('.flex').remove();
             }
         });
+        
+        document.getElementById('mealKitSearchInput').addEventListener('input', (e) => {
+            renderMealKitList(e.target.value);
+        });
 
         document.body.addEventListener('click', (e) => {
+            const mealKitItem = e.target.closest('.meal-kit-item');
+            const addKitBtn = e.target.closest('.add-kit-to-recipe-btn');
+
+            if (mealKitItem) {
+                showMealKitDetailModal(mealKitItem.dataset.kitId);
+                return;
+            } 
+            if (addKitBtn) {
+                addMealKitToMyRecipes(addKitBtn.dataset.kitId);
+                return;
+            }
             const addToCartBtn = e.target.closest('.add-to-cart-btn');
             const addFavoriteBtn = e.target.closest('.add-favorite-btn');
             const removeFavoriteBtn = e.target.closest('.remove-favorite-btn');
@@ -1406,3 +1532,4 @@
     window.showPromptBox = showPromptBox;
     window.setMarketMapUrl = setMarketMapUrl;
 })();
+

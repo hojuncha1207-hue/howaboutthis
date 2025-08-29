@@ -495,35 +495,73 @@ const mealKitData = [
     function renderRecentStoresScreen() { const container = document.getElementById('recentStoresScreen').querySelector('main'); container.innerHTML = ''; if (recentlyViewedStores.length === 0) { container.innerHTML = `<p class="text-center text-gray-500 p-10">최근 본 가게가 없습니다.</p>`; return; } const groupedByDate = recentlyViewedStores.reduce((acc, item) => { const dateKey = formatRelativeDate(item.viewedAt); if (!acc[dateKey]) { acc[dateKey] = []; } acc[dateKey].push(item); return acc; }, {}); for (const dateKey in groupedByDate) { const dateHeader = document.createElement('h2'); dateHeader.className = 'text-md font-bold text-gray-600 pb-2 border-b'; dateHeader.textContent = dateKey; container.appendChild(dateHeader); const storesOnDate = groupedByDate[dateKey]; storesOnDate.forEach(({ storeId }) => { const store = storeData.find(s => s.id === storeId); if (!store) return; const tagsHtml = store.mainTags.map(tag => `<span class="bg-gray-200 text-gray-700 text-xs font-medium mr-2 px-2 py-1 rounded">${tag}</span>`).join(''); const card = document.createElement('div'); card.className = 'flex items-start bg-white p-4 rounded-lg border border-gray-200 relative cursor-pointer store-link'; card.dataset.storeId = store.id; card.dataset.from = 'recentStoresScreen'; card.innerHTML = `<div class="w-24 h-24 rounded-md mr-4 bg-gray-200 flex items-center justify-center text-5xl">${getEmojiForProduct(store.name)}</div><div class="flex-1"><h3 class="font-bold text-lg text-gray-900">${store.name}</h3><div class="flex items-center text-sm text-gray-600 mt-1"><i class="ph ph-star text-yellow-400 text-base mr-1"></i><span class="font-bold">${store.rating}</span><span class="mx-1">|</span><span>리뷰 ${store.reviews.length}</span></div><div class="mt-2">${tagsHtml}</div></div>`; container.appendChild(card); }); } }
     function renderMyOrdersScreen() { const container = document.getElementById('myOrdersScreen').querySelector('main'); container.innerHTML = ''; if (completedOrders.length === 0) { container.innerHTML = `<p class="text-center text-gray-500 p-10">주문 내역이 없습니다.</p>`; return; } [...completedOrders].reverse().forEach(order => { let orderItemsHtml = ''; for (const storeId in order.cart) { const store = order.cart[storeId]; const itemNames = Object.values(store.items).map(item => { const requestText = item.request ? `<span class="text-xs text-indigo-600"> (${item.request})</span>` : ''; return `${item.name} ${item.quantity}개${requestText}`; }).join('<br>'); orderItemsHtml += `<div class="mt-2"><h4 class="font-semibold text-lg text-gray-800">${store.storeName}</h4><p class="text-gray-600 pl-1">${itemNames}</p></div>`; } const orderCard = document.createElement('div'); orderCard.className = 'bg-white p-4 rounded-lg border border-gray-200 shadow-sm'; orderCard.innerHTML = `<p class="text-sm text-gray-500 mb-2">${order.date} - 픽업 (ID: ${order.userId})</p>${orderItemsHtml}<div class="border-t mt-4 pt-3 flex justify-between items-center"><span class="font-semibold text-gray-700">결제금액</span><span class="font-bold text-lg text-gray-900">${order.totalPrice.toLocaleString()}원</span></div>`; container.appendChild(orderCard); }); }
     async function handleCheckout() {
+    // 1. 사용자 ID 입력 확인
         const userId = document.getElementById('userIdInput').value.trim();
         if (!userId) {
             showMessage('사용자 ID를 입력해주세요.');
             return;
         }
 
+    // 2. 전송할 주문 객체(newOrder) 생성
         const orderId = `CNY-${Date.now()}`;
-        const newOrder = { /* ... 주문 객체 생성 ... */ };
+        const newOrder = {
+            orderId: orderId,
+            userId: userId,
+            cart: JSON.parse(JSON.stringify(shoppingCart)), // 장바구니 데이터 복사
+            date: new Date().toISOString(), // 서버와 통신을 위한 표준 시간 형식
+            totalPrice: Object.values(shoppingCart).reduce((sum, store) =>
+                sum + Object.values(store.items).reduce((s, item) => s + item.price * item.quantity, 0), 0)
+        };
 
-        // ✨ 서버 전송(fetch) 기능이 추가된 부분 ✨
+    // 3. fetch를 이용해 서버로 주문 데이터 전송
         try {
             const response = await fetch('/api/order', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(newOrder),
+                method: 'POST', // 데이터를 생성/전송하므로 POST 방식 사용
+                headers: {
+                    'Content-Type': 'application/json', // 우리가 보내는 데이터는 JSON 형식임을 명시
+                },
+                body: JSON.stringify(newOrder), // newOrder 객체를 JSON 문자열로 변환하여 전송
             });
 
             if (!response.ok) {
-                throw new Error('서버에 주문을 등록하는 데 실패했습니다.');
+            // 서버가 200번대 응답을 주지 않으면 에러로 간주
+                const errorData = await response.json().catch(() => ({ message: '서버 응답을 처리할 수 없습니다.' }));
+                throw new Error(errorData.message || '서버에 주문을 등록하는 데 실패했습니다.');
             }
-        // ... (이하 생략) ...
+
+            const result = await response.json();
+            console.log('서버로부터의 성공 응답:', result); // 성공 시 서버가 보낸 응답을 콘솔에 기록
+
         } catch (error) {
-        // ... (에러 처리) ...
-            return;
+        // fetch 과정이나 서버에서 에러가 발생한 경우
+            console.error('주문 전송 오류:', error);
+            showMessage(`주문 처리 중 오류가 발생했습니다: ${error.message}`);
+            return; // 오류가 발생했으므로 여기서 함수 실행을 중단
         }
-    
-    // ... (원래 있던 나머지 로직들) ...
-        showScreen('pickupScreen', { userId: userId });
-}
+
+    // 4. 서버 전송 성공 후, 기존 로직 실행 (알림, 장바구니 비우기 등)
+        completedOrders.push(newOrder);
+
+        for (const storeId in newOrder.cart) {
+            const store = newOrder.cart[storeId];
+            const firstItem = Object.values(store.items)[0];
+            const totalItems = Object.keys(store.items).length;
+            const message = `'${store.storeName}'에서 ${firstItem.name}` + (totalItems > 1 ? ` 외 ${totalItems - 1}건` : '') + ` 구매가 완료되었습니다.`;
+            const newNotification = { id: Date.now() + parseInt(storeId), message: message, read: false };
+            notifications.unshift(newNotification);
+            showToast(message);
+        }
+
+        saveNotificationsToStorage();
+        updateNotificationIndicator();
+
+        shoppingCart = {}; // 장바구니 비우기
+        updateCartCountIndicator();
+
+        const modal = document.querySelector('.modal-overlay');
+        if (modal) modal.remove();
+        showScreen('pickupScreen', { userId: userId }); // 다음 화면으로 전환
+    }
 
     function setupPickupScreen(param) { const mainContainer = document.getElementById('pickupScreen').querySelector('main'); mainContainer.innerHTML = `<div class="p-4 border-b"><label for="pickupUserIdInput" class="block text-sm font-medium text-gray-700 mb-1">사용자 ID</label><div class="flex space-x-2"><input type="text" id="pickupUserIdInput" placeholder="주문 시 입력한 ID를 입력하세요" class="flex-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"><button id="findPickupOrderBtn" class="px-4 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors whitespace-nowrap">조회하기</button></div></div><div id="pickupOrderResultsContainer" class="p-6"><p class="text-center text-gray-500">사용자 ID를 입력하고 조회 버튼을 눌러주세요.</p></div>`; document.getElementById('findPickupOrderBtn').addEventListener('click', () => { const userId = document.getElementById('pickupUserIdInput').value.trim(); if (!userId) { showMessage('사용자 ID를 입력해주세요.'); return; } renderFilteredPickupOrders(userId); }); if (param && param.userId) { document.getElementById('pickupUserIdInput').value = param.userId; renderFilteredPickupOrders(param.userId); } }
     function renderFilteredPickupOrders(userId) { const resultsContainer = document.getElementById('pickupOrderResultsContainer'); resultsContainer.innerHTML = ''; const userOrders = completedOrders.filter(order => order.userId === userId); if (userOrders.length === 0) { resultsContainer.innerHTML = `<p class="text-center text-gray-500 p-10">해당 ID의 주문 내역이 없습니다.</p>`; return; } [...userOrders].reverse().forEach(order => { const orderEl = document.createElement('div'); orderEl.className = 'mb-8'; let itemsHtml = ''; for (const storeId in order.cart) { const store = order.cart[storeId]; const items = Object.values(store.items).map(item => `${item.name} ${item.quantity}개${item.request ? ` (${item.request})` : ''}`).join(', '); itemsHtml += `<div class="flex items-start bg-gray-100 p-3 rounded-lg"><div class="w-12 h-12 rounded-md mr-4 bg-gray-200 flex items-center justify-center text-3xl">${getEmojiForProduct(store.storeName)}</div><div><p class="font-semibold text-gray-800">${store.storeName}</p><p class="text-gray-600">${items}</p></div></div>`; } const qrCodeData = JSON.stringify({ userId: order.userId, orderId: order.orderId }); orderEl.innerHTML = `<div class="bg-gray-50 p-6 rounded-lg text-center"><h2 class="text-lg font-semibold text-gray-800">픽업 준비 완료</h2><p class="text-gray-500 mt-1">픽업 센터에서 아래 QR코드를 보여주세요.</p><div id="qrcode-${order.orderId}" class="mt-4 flex justify-center"></div><p class="mt-4 text-sm font-mono bg-gray-200 p-2 rounded inline-block">주문번호: ${order.orderId}</p><p class="mt-2 text-sm font-mono bg-gray-200 p-2 rounded inline-block">사용자 ID: ${order.userId}</p></div><div class="mt-8"><h3 class="text-lg font-bold text-gray-800 mb-4">주문 내역</h3><div class="space-y-3">${itemsHtml}</div></div><hr class="my-8 border-gray-300">`; resultsContainer.appendChild(orderEl); new QRCode(document.getElementById(`qrcode-${order.orderId}`), { text: qrCodeData, width: 180, height: 180 }); }); }
@@ -656,6 +694,7 @@ const mealKitData = [
     window.setMarketMapUrl = setMarketMapUrl;
 
 })();
+
 
 
 

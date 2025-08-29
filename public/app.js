@@ -549,7 +549,7 @@ const mealKitData = [
     function showMessage(message) { const modal = document.createElement('div'); modal.className = 'modal-overlay'; modal.innerHTML = `<div class="modal-content text-center"><p class="text-gray-800 text-lg mb-6">${message}</p><button onclick="this.closest('.modal-overlay').remove()" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors">확인</button></div>`; document.getElementById('modalContainer').appendChild(modal); }
     function showToast(message) { const container = document.getElementById('toast-container'); const toast = document.createElement('div'); toast.className = 'toast'; toast.textContent = message; container.appendChild(toast); setTimeout(() => { toast.remove(); }, 3000); }
     function getCleanUrl(url) { try { const urlObject = new URL(url); return urlObject.origin + urlObject.pathname; } catch (e) { return url; } }
-    function getStoredMapUrl() { const urlParam = new URLSearchParams(location.search).get('map'); if (urlParam) return urlParam; return localStorage.getItem('ddmap.marketUrl') || 'https://transcendent-crisp-6ebea8.netlify.app/'; }
+    function getStoredMapUrl() { const urlParam = new URLSearchParams(location.search).get('map'); if (urlParam) return urlParam; return localStorage.getItem('ddmap.marketUrl') || 'https://stately-dodol-309adb.netlify.app/'; }
     function setMarketMapUrl(url) { try { const cleanUrl = getCleanUrl(url); localStorage.setItem('ddmap.marketUrl', cleanUrl); applyMarketMapUrl(cleanUrl); showToast('시장 지도 URL이 성공적으로 변경되었습니다.'); } catch (e) { showMessage('올바른 URL 형식을 입력해 주세요. (예: https://example.com)'); } }
     function applyMarketMapUrl(url) { const frame = document.getElementById('marketMapFrame'); const newTabLink = document.getElementById('openMapNewTab'); const loadingIndicator = document.getElementById('mapLoading'); loadingIndicator.style.display = 'flex'; frame.style.display = 'none'; frame.src = 'about:blank'; setTimeout(() => { frame.src = url; newTabLink.href = url; }, 50); }
     function showPromptBox(title, message, callback) { const modal = document.createElement('div'); modal.className = 'modal-overlay'; modal.innerHTML = `<div class="modal-content"><h3 class="text-xl font-bold mb-4">${title}</h3><p class="text-gray-600 mb-4">${message}</p><input type="text" id="promptInput" value="${getStoredMapUrl()}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-4"><div class="flex justify-end space-x-2"><button onclick="this.closest('.modal-overlay').remove()" class="px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">취소</button><button id="promptConfirmBtn" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">확인</button></div></div>`; document.getElementById('modalContainer').appendChild(modal); document.getElementById('promptConfirmBtn').addEventListener('click', () => { const inputValue = document.getElementById('promptInput').value; callback(inputValue); modal.remove(); }); }
@@ -718,6 +718,7 @@ const mealKitData = [
     window.setMarketMapUrl = setMarketMapUrl;
 
 })();
+
 
 
 
